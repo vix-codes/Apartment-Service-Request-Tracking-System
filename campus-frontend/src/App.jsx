@@ -1,24 +1,24 @@
+import { useEffect, useState } from "react";
 import Login from "./pages/Login";
-import StudentDashboard from "./pages/StudentDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import StaffDashboard from "./pages/StaffDashboard";
+import StudentDashboard from "./pages/StudentDashboard";
 
 function App() {
-  const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
+  const [user, setUser] = useState(null);
 
-  if (!token) {
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) setUser(JSON.parse(storedUser));
+  }, []);
+
+  if (!user) {
     return <Login />;
   }
 
-  if (role === "admin") {
-    return <AdminDashboard />;
-  }
-
-  if (role === "staff") {
-    return <StaffDashboard />;
-  }
-
+  // 🟢 ROLE ROUTING
+  if (user.role === "admin") return <AdminDashboard />;
+  if (user.role === "staff") return <StaffDashboard />;
   return <StudentDashboard />;
 }
 

@@ -3,6 +3,7 @@ import API from "../services/api";
 
 function StaffDashboard() {
   const [requests, setRequests] = useState([]);
+  const [reason, setReason] = useState("");
 
   useEffect(() => {
     fetchRequests();
@@ -17,23 +18,49 @@ function StaffDashboard() {
     }
   };
 
-  const updateStatus = async (id, status) => {
+  const startWork = async (id) => {
     try {
-      if (status === "Rejected") {
-        const reason = prompt("Enter reject reason");
-        if (!reason) return;
+      await API.put(`/requests/status/${id}`, {
+        status: "In Progress",
+      });
 
-        await API.put(`/requests/staff-status/${id}`, {
-          status: "Rejected",
-          reason: reason,
-        });
-      } else {
-        await API.put(`/requests/staff-status/${id}`, { status });
-      }
-
+      alert("Work started");
       fetchRequests();
-    } catch (err) {
-      alert("Error updating");
+    } catch {
+      alert("Error");
+    }
+  };
+
+  const closeTask = async (id) => {
+    try {
+      await API.put(`/requests/status/${id}`, {
+        status: "Closed",
+      });
+
+      alert("Task closed");
+      fetchRequests();
+    } catch {
+      alert("Error");
+    }
+  };
+
+  const rejectTask = async (id) => {
+    if (!reason) {
+      alert("Enter reason");
+      return;
+    }
+
+    try {
+      await API.put(`/requests/status/${id}`, {
+        status: "Rejected",
+        reason: reason,
+      });
+
+      alert("Task rejected");
+      setReason("");
+      fetchRequests();
+    } catch {
+      alert("Error");
     }
   };
 
@@ -45,69 +72,59 @@ function StaffDashboard() {
   return (
     <div style={{ padding: 20 }}>
       <button onClick={logout}>Logout</button>
-
       <h2>Staff Dashboard</h2>
 
-      {requests
-        .filter((r) => r.assignedTo)
-        .map((req) => (
-          <div
-            key={req._id}
-            style={{ border: "1px solid gray", margin: 10, padding: 10 }}
-          >
-            <b>{req.title}</b>
-            <p>{req.description}</p>
+      {requests.length === 0 && <p>No assigned work</p>}
 
-            {req.image && <img src={req.image} width="200" />}
+      {requests.map((req) => (
+        <div
+          key={req._id}
+          style={{ border: "1px solid gray", margin: 10, padding: 10 }}
+        >
+          <b>{req.title}</b>
+          <p>{req.description}</p>
 
-            <p>Status: {req.status}</p>
+          {req.image && <img src={req.image} width="200" />}
 
-            {req.assignedTo && (
-              <p>Assigned to: {req.assignedTo.name}</p>
-            )}
+          <p>Status: {req.status}</p>
 
-            <p>
-              Created:{" "}
-              {req.createdAt &&
-                new Date(req.createdAt).toLocaleString()}
-            </p>
+          {req.createdAt && (
+            <p>Created: {new Date(req.createdAt).toLocaleString()}</p>
+          )}
 
-            {req.assignedAt && (
-              <p>
-                Assigned:{" "}
-                {new Date(req.assignedAt).toLocaleString()}
-              </p>
-            )}
+          {req.assignedAt && (
+            <p>Assigned: {new Date(req.assignedAt).toLocaleString()}</p>
+          )}
 
-            {req.status !== "Closed" && (
-              <>
-                <button
-                  onClick={() =>
-                    updateStatus(req._id, "In Progress")
-                  }
-                >
-                  Start
-                </button>
+          {/* 🔵 BUTTON LOGIC */}
+          {req.status === "Assigned" && (
+            <button onClick={() => startWork(req._id)}>
+              Start Work
+            </button>
+          )}
 
-                <button
-                  onClick={() =>
-                    updateStatus(req._id, "Closed")
-                  }
-                >
-                  Close
-                </button>
+          {req.status === "In Progress" && (
+            <>
+              <button onClick={() => closeTask(req._id)}>
+                Close
+              </button>
 
-                <button
-                  onClick={() =>
-                    updateStatus(req._id, "Rejected")
-                  }
-                >
-                  Reject
-                </button>
-              </>
-            )}
-          </div>
-        ))}
+              <br /><br />
+              <input
+                placeholder="Reject reason"
+                value={reason}
+                onChange={(e)=>setReason(e.target.value)}
+              />
+
+              <button onClick={() => rejectTask(req._id)}>
+                Reject
+              </button>
+            </>
+          )}
+
+          {req.status === "Closed" && <b>Closed ✔</b>}
+        </div>
+      ))}
     </div>
   );
 }

@@ -5,35 +5,18 @@ const auth = require("../middlewares/authMiddleware");
 
 const {
   createRequest,
-  getAllRequests,
+  getRequests,
   assignRequest,
-  startWork,
-  closeRequest,
-  rejectRequest,
+  updateStatus,
   deleteRequest,
 } = require("../controllers/requestController");
 
-
-// 🟢 CREATE (student)
 router.post("/", auth, createRequest);
+router.get("/", auth, getRequests);
 
-// 🟢 GET ALL (role based)
-router.get("/", auth, getAllRequests);
-
-// 🟢 ADMIN ASSIGN
 router.put("/assign/:id", auth, assignRequest);
+router.put("/status/:id", auth, updateStatus);
 
-// 🟢 STAFF START
-router.put("/start/:id", auth, startWork);
-
-// 🟢 STAFF CLOSE
-router.put("/close/:id", auth, closeRequest);
-
-// 🟢 STAFF REJECT
-router.put("/reject/:id", auth, rejectRequest);
-
-// 🟢 ADMIN DELETE
 router.delete("/:id", auth, deleteRequest);
-
 
 module.exports = router;

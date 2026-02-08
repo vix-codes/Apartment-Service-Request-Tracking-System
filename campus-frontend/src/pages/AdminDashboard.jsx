@@ -4,7 +4,13 @@ import API from "../services/api";
 function AdminDashboard() {
   const [requests, setRequests] = useState([]);
   const [staff, setStaff] = useState([]);
-  const [selectedStaff, setSelectedStaff] = useState("");
+  const [selectedStaff, setSelectedStaff] = useState({});
+  const [newUser, setNewUser] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "staff",
+  });
 
   useEffect(() => {
     fetchRequests();
@@ -12,46 +18,35 @@ function AdminDashboard() {
   }, []);
 
   const fetchRequests = async () => {
-    try {
-      const res = await API.get("/requests");
-      setRequests(res.data.data);
-    } catch (err) {
-      console.log(err);
-    }
+    const res = await API.get("/requests");
+    setRequests(res.data.data);
   };
 
   const fetchStaff = async () => {
-    try {
-      const res = await API.get("/auth/staff");
-      setStaff(res.data.data);
-    } catch (err) {
-      console.log(err);
-    }
+    const res = await API.get("/auth/staff");
+    setStaff(res.data.data);
   };
 
   const assign = async (id) => {
-    if (!selectedStaff) {
-      alert("Select staff");
-      return;
-    }
+    const staffId = selectedStaff[id];
+    if (!staffId) return alert("Select staff");
 
-    try {
-      await API.put(`/requests/assign/${id}`, {
-        staffId: selectedStaff,
-      });
-
-      alert("Assigned");
-      fetchRequests();
-    } catch (err) {
-      alert("Error assigning");
-    }
+    await API.put(`/requests/assign/${id}`, { staffId });
+    alert("Assigned");
+    fetchRequests();
   };
 
   const deleteReq = async (id) => {
-    if (!window.confirm("Delete request?")) return;
-
+    if (!window.confirm("Delete?")) return;
     await API.delete(`/requests/${id}`);
     fetchRequests();
+  };
+
+  const createUser = async () => {
+    await API.post("/auth/create-user", newUser);
+    alert("User created");
+    setNewUser({ name:"",email:"",password:"",role:"staff" });
+    fetchStaff();
   };
 
   const logout = () => {
@@ -64,71 +59,92 @@ function AdminDashboard() {
       <button onClick={logout}>Logout</button>
       <h2>Admin Dashboard</h2>
 
-      {requests.map((req) => (
-        <div
-          key={req._id}
-          style={{ border: "1px solid gray", margin: 10, padding: 10 }}
-        >
-          <b>{req.title}</b>
-          <p>{req.description}</p>
+      {/* CREATE STAFF/STUDENT */}
+      <h3>Create User</h3>
 
-          {req.image && <img src={req.image} width="200" />}
+      <input
+        placeholder="Name"
+        value={newUser.name}
+        onChange={(e)=>setNewUser({...newUser,name:e.target.value})}
+      />
+      <br/><br/>
 
-          <p>Status: {req.status}</p>
+      <input
+        placeholder="Email"
+        value={newUser.email}
+        onChange={(e)=>setNewUser({...newUser,email:e.target.value})}
+      />
+      <br/><br/>
 
-          {req.createdBy && (
-            <p>Created by: {req.createdBy.name}</p>
+      <input
+        placeholder="Password"
+        value={newUser.password}
+        onChange={(e)=>setNewUser({...newUser,password:e.target.value})}
+      />
+      <br/><br/>
+
+      <select
+        value={newUser.role}
+        onChange={(e)=>setNewUser({...newUser,role:e.target.value})}
+      >
+        <option value="staff">Staff</option>
+        <option value="student">Student</option>
+        <option value="admin">Admin</option>
+      </select>
+
+      <br/><br/>
+      <button onClick={createUser}>Create User</button>
+
+      <hr/>
+      <h3>All Requests</h3>
+
+      {requests.map((r)=>(
+        <div key={r._id} style={{border:"1px solid gray",margin:10,padding:10}}>
+          <b>{r.title}</b>
+          <p>{r.description}</p>
+
+          {r.image && <img src={r.image} width="200"/>}
+
+          <p>Status: {r.status}</p>
+
+          {r.createdBy && <p>Created by: {r.createdBy.name}</p>}
+          {r.assignedTo && <p>Assigned to: {r.assignedTo.name}</p>}
+          {r.closedBy && <p>Closed by: {r.closedBy.name}</p>}
+
+          <p>Created: {new Date(r.createdAt).toLocaleString()}</p>
+
+          {r.assignedAt && (
+            <p>Assigned: {new Date(r.assignedAt).toLocaleString()}</p>
           )}
 
-          <p>
-            Created:{" "}
-            {req.createdAt &&
-              new Date(req.createdAt).toLocaleString()}
-          </p>
-
-          {req.assignedAt && (
-            <p>
-              Assigned time:{" "}
-              {new Date(req.assignedAt).toLocaleString()}
-            </p>
+          {r.closedAt && (
+            <p>Closed: {new Date(r.closedAt).toLocaleString()}</p>
           )}
 
-          {req.closedAt && (
-            <p>
-              Closed time:{" "}
-              {new Date(req.closedAt).toLocaleString()}
-            </p>
+          {r.rejectReason && (
+            <p style={{color:"red"}}>Reject: {r.rejectReason}</p>
           )}
 
-          {req.assignedTo ? (
-            <p>
-              Assigned to: <b>{req.assignedTo.name}</b>
-            </p>
-          ) : (
+          {/* ASSIGN */}
+          {!r.assignedTo && r.status === "Open" && (
             <>
               <select
-                onChange={(e) =>
-                  setSelectedStaff(e.target.value)
+                onChange={(e)=>
+                  setSelectedStaff({...selectedStaff,[r._id]:e.target.value})
                 }
               >
-                <option value="">Select staff</option>
-                {staff.map((s) => (
-                  <option key={s._id} value={s._id}>
-                    {s.name}
-                  </option>
+                <option>Select staff</option>
+                {staff.map(s=>(
+                  <option key={s._id} value={s._id}>{s.name}</option>
                 ))}
               </select>
 
-              <button onClick={() => assign(req._id)}>
-                Assign
-              </button>
+              <button onClick={()=>assign(r._id)}>Assign</button>
             </>
           )}
 
-          <br />
-          <button onClick={() => deleteReq(req._id)}>
-            Delete
-          </button>
+          <br/>
+          <button onClick={()=>deleteReq(r._id)}>Delete</button>
         </div>
       ))}
     </div>

@@ -97,7 +97,6 @@ exports.getStaffUsers = async (req, res) => {
   }
 };
 
-
 // 🟢 GET ALL USERS (ADMIN PANEL)
 exports.getAllUsers = async (req, res) => {
   try {

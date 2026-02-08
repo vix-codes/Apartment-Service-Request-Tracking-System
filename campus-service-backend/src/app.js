@@ -3,6 +3,8 @@ const cors = require("cors");
 
 const requestRoutes = require("./routes/requestRoutes");
 const authRoutes = require("./routes/authRoutes");
+const auditRoutes = require("./routes/auditRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 
 const errorHandler = require("./middlewares/errorHandler");
 const requestLogger = require("./middlewares/requestLogger");
@@ -25,6 +27,8 @@ app.get("/health", (req, res) => {
 // 🟢 ROUTES
 app.use("/auth", authRoutes);
 app.use("/requests", requestRoutes);
+app.use("/audit", auditRoutes);
+app.use("/notifications", notificationRoutes);
 
 
 // 🟢 ERROR HANDLER (last)

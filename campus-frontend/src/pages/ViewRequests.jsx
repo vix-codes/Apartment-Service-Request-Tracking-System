@@ -127,9 +127,13 @@ function ViewRequests(){
               <ul style={{paddingLeft:18}}>
                 {r.activityLogs.map((log, i) => (
                   <li key={i} style={{marginBottom:8}}>
-                    <strong>{log.userName || log.userId?.name || 'System'}</strong>
+                    <strong>{log.userName || log.performedBy?.name || 'System'}</strong>
                     <span style={{color:'#666',marginLeft:8}}>• {log.action}</span>
-                    <div style={{fontSize:'0.9em',color:'#444',marginTop:4}}>{log.details}</div>
+                    <div style={{fontSize:'0.9em',color:'#444',marginTop:4}}>
+                      {log.note || (log.previousStatus && log.newStatus
+                        ? `${log.previousStatus} → ${log.newStatus}`
+                        : "No additional details")}
+                    </div>
                     <div style={{fontSize:'0.8em',color:'#999'}}>{new Date(log.createdAt).toLocaleString()}</div>
                   </li>
                 ))}

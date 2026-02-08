@@ -15,10 +15,14 @@ function Login() {
       });
 
       const token = res.data.token;
-      const role = res.data.role;
+      const role = res.data.user?.role;
+      const userId = res.data.user?.id;
 
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
+      if (userId) {
+        localStorage.setItem("userId", userId);
+      }
 
       alert("Login success");
       window.location.reload();

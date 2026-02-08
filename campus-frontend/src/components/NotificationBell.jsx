@@ -16,12 +16,12 @@ function NotificationBell(){
 
   useEffect(()=>{ fetch(); },[]);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter(n => !n.isRead).length;
 
   const markRead = async (id)=>{
     try{
       await API.put(`/notifications/${id}/read`);
-      setNotifications(notifications.map(n=> n._id===id?{...n,read:true}:n));
+      setNotifications(notifications.map(n=> n._id===id?{...n,isRead:true}:n));
     }catch(err){
       console.error('mark read', err);
     }
@@ -41,14 +41,14 @@ function NotificationBell(){
           <div style={{padding:10,borderBottom:'1px solid #eee',fontWeight:'bold'}}>Notifications</div>
           {notifications.length===0 && <div style={{padding:12,color:'#666'}}>No notifications</div>}
           {notifications.map(n=> (
-            <div key={n._id} style={{padding:10,borderBottom:'1px solid #f1f1f1',background:n.read? 'white':'#f7fbff'}}>
+            <div key={n._id} style={{padding:10,borderBottom:'1px solid #f1f1f1',background:n.isRead? 'white':'#f7fbff'}}>
               <div style={{display:'flex',justifyContent:'space-between'}}>
                 <div style={{fontWeight:700}}>{n.type?.toUpperCase() || 'INFO'}</div>
                 <div style={{fontSize:12,color:'#999'}}>{new Date(n.createdAt).toLocaleString()}</div>
               </div>
               <div style={{marginTop:6,fontSize:14}}>{n.message}</div>
               <div style={{marginTop:8}}>
-                {!n.read && <button onClick={()=>markRead(n._id)} style={{padding:'6px 10px',background:'#0066cc',color:'white',border:'none',borderRadius:4,cursor:'pointer'}}>Mark read</button>}
+                {!n.isRead && <button onClick={()=>markRead(n._id)} style={{padding:'6px 10px',background:'#0066cc',color:'white',border:'none',borderRadius:4,cursor:'pointer'}}>Mark read</button>}
               </div>
             </div>
           ))}

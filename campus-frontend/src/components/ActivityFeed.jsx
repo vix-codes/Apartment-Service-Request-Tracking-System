@@ -3,19 +3,31 @@ import API from "../services/api";
 
 function ActivityFeed() {
   const [logs, setLogs] = useState([]);
+  const role = localStorage.getItem("role");
 
   useEffect(() => {
-    fetchLogs();
-  }, []);
+    if (role === "admin") {
+      fetchLogs();
+    }
+  }, [role]);
 
   const fetchLogs = async () => {
     try {
-      const res = await API.get("/logs");
+      const res = await API.get("/audit");
       setLogs(res.data.data);
     } catch (err) {
       console.log(err);
     }
   };
+
+  if (role !== "admin") {
+    return (
+      <div style={{ marginTop: 40 }}>
+        <h3>System Activity Timeline</h3>
+        <p>Activity logs are available to admins only.</p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ marginTop: 40 }}>

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import API from "../services/api";
 import ActivityFeed from "../components/ActivityFeed";
+import NoticeBanner from "../components/NoticeBanner";
 
 function StaffDashboard() {
   const [requests, setRequests] = useState([]);
   const [reason, setReason] = useState("");
+  const [notice, setNotice] = useState(null);
 
   useEffect(() => {
     fetchRequests();
@@ -25,9 +27,10 @@ function StaffDashboard() {
         status: "In Progress",
       });
 
+      setNotice({ tone: "success", message: "Marked as in progress." });
       fetchRequests();
     } catch {
-      alert("Error");
+      setNotice({ tone: "error", message: "Unable to update status." });
     }
   };
 
@@ -37,15 +40,16 @@ function StaffDashboard() {
         status: "Closed",
       });
 
+      setNotice({ tone: "success", message: "Request closed." });
       fetchRequests();
     } catch {
-      alert("Error");
+      setNotice({ tone: "error", message: "Unable to update status." });
     }
   };
 
   const rejectTask = async (id) => {
     if (!reason) {
-      alert("Enter reason");
+      setNotice({ tone: "error", message: "Enter a rejection reason." });
       return;
     }
 
@@ -56,9 +60,10 @@ function StaffDashboard() {
       });
 
       setReason("");
+      setNotice({ tone: "success", message: "Request rejected." });
       fetchRequests();
     } catch {
-      alert("Error");
+      setNotice({ tone: "error", message: "Unable to reject request." });
     }
   };
 
@@ -68,60 +73,82 @@ function StaffDashboard() {
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <button onClick={logout}>Logout</button>
-      <h2>Staff Dashboard</h2>
-
-      {requests
-        .filter(r => r.assignedTo)
-        .map((req) => (
-        <div
-          key={req._id}
-          style={{ border: "1px solid gray", margin: 10, padding: 10 }}
-        >
-          <b>{req.title}</b>
-          <p>{req.description}</p>
-
-          {req.image && <img src={req.image} width="200" />}
-
-          <p>Status: {req.status}</p>
-
-          {req.createdAt && (
-            <p>Created: {new Date(req.createdAt).toLocaleString()}</p>
-          )}
-
-          {req.assignedAt && (
-            <p>Assigned: {new Date(req.assignedAt).toLocaleString()}</p>
-          )}
-
-          {req.status === "Assigned" && (
-            <button onClick={() => startWork(req._id)}>
-              Start Work
-            </button>
-          )}
-
-          {req.status === "In Progress" && (
-            <>
-              <button onClick={() => closeTask(req._id)}>
-                Close
-              </button>
-
-              <br/><br/>
-              <input
-                placeholder="Reject reason"
-                value={reason}
-                onChange={(e)=>setReason(e.target.value)}
-              />
-
-              <button onClick={() => rejectTask(req._id)}>
-                Reject
-              </button>
-            </>
-          )}
-
-          {req.status === "Closed" && <b>Closed ✔</b>}
+    <div className="page">
+      <div className="page__header">
+        <div>
+          <h2>Staff Dashboard</h2>
+          <p className="muted">Track and resolve assigned requests.</p>
         </div>
-      ))}
+        <button className="button button--ghost" onClick={logout}>Logout</button>
+      </div>
+
+      <NoticeBanner
+        message={notice?.message}
+        tone={notice?.tone}
+        onClose={() => setNotice(null)}
+      />
+
+      <div className="grid">
+        {requests
+          .filter(r => r.assignedTo)
+          .map((req) => (
+            <div
+              key={req._id}
+              className="card"
+            >
+              <div className="card__header">
+                <div>
+                  <h4>{req.title}</h4>
+                  <p className="muted">{req.description}</p>
+                </div>
+                <span className={`status status--${req.status?.toLowerCase().replace(" ", "-")}`}>
+                  {req.status}
+                </span>
+              </div>
+
+              {req.image && <img className="card__image" src={req.image} alt={`${req.title} evidence`} />}
+
+              <div className="card__meta">
+                {req.createdAt && (
+                  <p>Created: {new Date(req.createdAt).toLocaleString()}</p>
+                )}
+
+                {req.assignedAt && (
+                  <p>Assigned: {new Date(req.assignedAt).toLocaleString()}</p>
+                )}
+              </div>
+
+              <div className="card__actions">
+                {req.status === "Assigned" && (
+                  <button className="button button--primary" onClick={() => startWork(req._id)}>
+                    Start Work
+                  </button>
+                )}
+
+                {req.status === "In Progress" && (
+                  <>
+                    <button className="button button--success" onClick={() => closeTask(req._id)}>
+                      Close
+                    </button>
+
+                    <input
+                      className="input"
+                      placeholder="Reject reason"
+                      value={reason}
+                      onChange={(e)=>setReason(e.target.value)}
+                    />
+
+                    <button className="button button--danger" onClick={() => rejectTask(req._id)}>
+                      Reject
+                    </button>
+                  </>
+                )}
+
+                {req.status === "Closed" && <span className="status status--closed">Closed ✔</span>}
+              </div>
+            </div>
+          ))}
+      </div>
 
       <ActivityFeed />
     </div>

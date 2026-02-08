@@ -26,7 +26,8 @@ const markRead = async (req, res) => {
       return res.status(403).json({ message: "Forbidden" });
     }
 
-    notif.read = true;
+    notif.isRead = true;
+    notif.readAt = new Date();
     await notif.save();
 
     res.json({ success: true, data: notif });

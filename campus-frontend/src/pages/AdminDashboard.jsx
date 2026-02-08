@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import API from "../services/api";
 import ActivityFeed from "../components/ActivityFeed";
+import NoticeBanner from "../components/NoticeBanner";
 
 function AdminDashboard() {
   const [requests, setRequests] = useState([]);
   const [staff, setStaff] = useState([]);
   const [selectedStaff, setSelectedStaff] = useState("");
+  const [notice, setNotice] = useState(null);
 
   const [name,setName]=useState("");
   const [email,setEmail]=useState("");
@@ -28,20 +30,33 @@ function AdminDashboard() {
   };
 
   const assign = async (id) => {
-    if (!selectedStaff) return alert("Select staff");
+    if (!selectedStaff) {
+      setNotice({ tone: "error", message: "Select a staff member to assign." });
+      return;
+    }
 
-    await API.put(`/requests/assign/${id}`, {
-      staffId: selectedStaff,
-    });
+    try {
+      await API.put(`/requests/assign/${id}`, {
+        staffId: selectedStaff,
+      });
+      setNotice({ tone: "success", message: "Request assigned successfully." });
+    } catch (err) {
+      console.log(err);
+      setNotice({ tone: "error", message: "Unable to assign request." });
+    }
 
     fetchRequests();
   };
 
   const deleteReq = async (id) => {
-    if (!window.confirm("Delete request?")) return;
-
-    await API.delete(`/requests/${id}`);
-    fetchRequests();
+    try {
+      await API.delete(`/requests/${id}`);
+      setNotice({ tone: "success", message: "Request deleted." });
+      fetchRequests();
+    } catch (err) {
+      console.log(err);
+      setNotice({ tone: "error", message: "Unable to delete request." });
+    }
   };
 
   const createUser = async (e) => {
@@ -55,11 +70,11 @@ function AdminDashboard() {
         role,
       });
 
-      alert("User created");
+      setNotice({ tone: "success", message: "User created successfully." });
       setName(""); setEmail(""); setPassword("");
       fetchStaff();
     } catch {
-      alert("Error creating user");
+      setNotice({ tone: "error", message: "Error creating user." });
     }
   };
 
@@ -69,69 +84,106 @@ function AdminDashboard() {
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <button onClick={logout}>Logout</button>
-      <h2>Admin Dashboard</h2>
+    <div className="page">
+      <div className="page__header">
+        <div>
+          <h2>Admin Dashboard</h2>
+          <p className="muted">Manage users and campus requests.</p>
+        </div>
+        <button className="button button--ghost" onClick={logout}>Logout</button>
+      </div>
+
+      <NoticeBanner
+        message={notice?.message}
+        tone={notice?.tone}
+        onClose={() => setNotice(null)}
+      />
 
       {/* CREATE USER */}
-      <h3>Create Staff/Admin</h3>
-      <form onSubmit={createUser}>
-        <input placeholder="Name" value={name} onChange={e=>setName(e.target.value)} required/>
-        <br/><br/>
+      <div className="card">
+        <h3>Create Staff/Admin</h3>
+        <form onSubmit={createUser} className="form form--grid">
+          <label className="form__label">
+            Name
+            <input placeholder="Full name" value={name} onChange={e=>setName(e.target.value)} required/>
+          </label>
 
-        <input placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} required/>
-        <br/><br/>
+          <label className="form__label">
+            Email
+            <input placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} required/>
+          </label>
 
-        <input placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} required/>
-        <br/><br/>
+          <label className="form__label">
+            Password
+            <input placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} required/>
+          </label>
 
-        <select value={role} onChange={e=>setRole(e.target.value)}>
-          <option value="staff">Staff</option>
-          <option value="admin">Admin</option>
-        </select>
-        <br/><br/>
+          <label className="form__label">
+            Role
+            <select value={role} onChange={e=>setRole(e.target.value)}>
+              <option value="staff">Staff</option>
+              <option value="admin">Admin</option>
+            </select>
+          </label>
 
-        <button>Create User</button>
-      </form>
-
-      <hr/>
+          <div className="form__actions">
+            <button className="button button--primary">Create User</button>
+          </div>
+        </form>
+      </div>
 
       {/* REQUESTS */}
-      <h3>All Requests</h3>
+      <div className="section">
+        <h3>All Requests</h3>
+        <div className="grid">
+          {requests.map((req) => (
+            <div key={req._id} className="card">
+              <div className="card__header">
+                <div>
+                  <h4>{req.title}</h4>
+                  <p className="muted">{req.description}</p>
+                </div>
+                <span className={`status status--${req.status?.toLowerCase().replace(" ", "-")}`}>
+                  {req.status}
+                </span>
+              </div>
 
-      {requests.map((req) => (
-        <div key={req._id} style={{border:"1px solid gray",margin:10,padding:10}}>
-          <b>{req.title}</b>
-          <p>{req.description}</p>
+              {req.image && (
+                <img className="card__image" src={req.image} alt={`${req.title} evidence`} />
+              )}
 
-          {req.image && <img src={req.image} width="200"/>}
+              <div className="card__meta">
+                {req.createdBy && <p>By: {req.createdBy.name}</p>}
+                {req.assignedTo && <p>Staff: {req.assignedTo.name}</p>}
+                {req.createdAt && <p>Created: {new Date(req.createdAt).toLocaleString()}</p>}
+                {req.assignedAt && <p>Assigned: {new Date(req.assignedAt).toLocaleString()}</p>}
+                {req.closedAt && <p>Closed: {new Date(req.closedAt).toLocaleString()}</p>}
+              </div>
 
-          <p>Status: {req.status}</p>
+              <div className="card__actions">
+                {!req.assignedTo && (
+                  <>
+                    <select
+                      className="select"
+                      onChange={(e)=>setSelectedStaff(e.target.value)}
+                      defaultValue=""
+                    >
+                      <option value="" disabled>Select staff</option>
+                      {staff.map(s=>(
+                        <option key={s._id} value={s._id}>{s.name}</option>
+                      ))}
+                    </select>
 
-          {req.createdBy && <p>By: {req.createdBy.name}</p>}
-          {req.assignedTo && <p>Staff: {req.assignedTo.name}</p>}
+                    <button className="button button--primary" onClick={()=>assign(req._id)}>Assign</button>
+                  </>
+                )}
 
-          {req.createdAt && <p>Created: {new Date(req.createdAt).toLocaleString()}</p>}
-          {req.assignedAt && <p>Assigned: {new Date(req.assignedAt).toLocaleString()}</p>}
-          {req.closedAt && <p>Closed: {new Date(req.closedAt).toLocaleString()}</p>}
-
-          {!req.assignedTo && (
-            <>
-              <select onChange={(e)=>setSelectedStaff(e.target.value)}>
-                <option>Select staff</option>
-                {staff.map(s=>(
-                  <option key={s._id} value={s._id}>{s.name}</option>
-                ))}
-              </select>
-
-              <button onClick={()=>assign(req._id)}>Assign</button>
-            </>
-          )}
-
-          <br/>
-          <button onClick={()=>deleteReq(req._id)}>Delete</button>
+                <button className="button button--danger" onClick={()=>deleteReq(req._id)}>Delete</button>
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
 
       <ActivityFeed />
     </div>

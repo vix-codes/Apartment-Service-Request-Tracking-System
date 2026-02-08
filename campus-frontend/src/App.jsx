@@ -2,6 +2,7 @@ import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import StaffDashboard from "./pages/StaffDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
+import NotificationBell from "./components/NotificationBell";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -12,14 +13,38 @@ function App() {
   }
 
   if (role === "admin") {
-    return <AdminDashboard />;
+    return (
+      <>
+        <div className="topbar">
+          <div className="topbar__brand">Campus Service</div>
+          <NotificationBell />
+        </div>
+        <AdminDashboard />
+      </>
+    );
   }
 
   if (role === "staff") {
-    return <StaffDashboard />;
+    return (
+      <>
+        <div className="topbar">
+          <div className="topbar__brand">Campus Service</div>
+          <NotificationBell />
+        </div>
+        <StaffDashboard />
+      </>
+    );
   }
 
-  return <StudentDashboard />;
+  return (
+    <>
+      <div className="topbar">
+        <div className="topbar__brand">Campus Service</div>
+        <NotificationBell />
+      </div>
+      <StudentDashboard />
+    </>
+  );
 }
 
 export default App;

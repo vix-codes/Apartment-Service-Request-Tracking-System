@@ -1,9 +1,11 @@
 import { useState } from "react";
 import API from "../services/api";
+import NoticeBanner from "../components/NoticeBanner";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [notice, setNotice] = useState(null);
 
   const login = async (e) => {
     e.preventDefault();
@@ -15,41 +17,61 @@ function Login() {
       });
 
       const token = res.data.token;
-      const role = res.data.role;
+      const role = res.data.user?.role;
+      const userId = res.data.user?.id;
 
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
+      if (userId) {
+        localStorage.setItem("userId", userId);
+      }
 
-      alert("Login success");
-      window.location.reload();
+      setNotice({ tone: "success", message: "Login successful. Redirecting..." });
+      setTimeout(() => window.location.reload(), 600);
     } catch (err) {
       console.log(err);
-      alert("Login failed");
+      setNotice({ tone: "error", message: "Login failed. Check your credentials." });
     }
   };
 
   return (
-    <div style={{ padding: 40 }}>
-      <h2>Campus Service Login</h2>
-
-      <form onSubmit={login}>
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e)=>setEmail(e.target.value)}
+    <div className="page page--center">
+      <div className="card card--narrow">
+        <h2>Campus Service Login</h2>
+        <p className="muted">Use your campus email to sign in.</p>
+        <NoticeBanner
+          message={notice?.message}
+          tone={notice?.tone}
+          onClose={() => setNotice(null)}
         />
-        <br/><br/>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e)=>setPassword(e.target.value)}
-        />
-        <br/><br/>
+        <form onSubmit={login} className="form">
+          <label className="form__label">
+            Email
+            <input
+              placeholder="you@campus.edu"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </label>
 
-        <button type="submit">Login</button>
-      </form>
+          <label className="form__label">
+            Password
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </label>
+
+          <button className="button button--primary" type="submit">
+            Login
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

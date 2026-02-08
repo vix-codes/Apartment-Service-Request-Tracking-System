@@ -3,55 +3,57 @@ import API from "../services/api";
 
 function ActivityFeed() {
   const [logs, setLogs] = useState([]);
+  const role = localStorage.getItem("role");
 
   useEffect(() => {
-    fetchLogs();
-  }, []);
+    if (role === "admin") {
+      fetchLogs();
+    }
+  }, [role]);
 
   const fetchLogs = async () => {
     try {
-      const res = await API.get("/logs");
+      const res = await API.get("/audit");
       setLogs(res.data.data);
     } catch (err) {
       console.log(err);
     }
   };
 
+  if (role !== "admin") {
+    return (
+      <div className="section">
+        <h3>System Activity Timeline</h3>
+        <p className="muted">Activity logs are available to admins only.</p>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ marginTop: 40 }}>
+    <div className="section">
       <h3>System Activity Timeline</h3>
 
-      {logs.length === 0 && <p>No activity yet</p>}
+      {logs.length === 0 && <p className="muted">No activity yet</p>}
 
-      {logs.map((log) => (
-        <div
-          key={log._id}
-          style={{
-            borderBottom: "1px solid #ccc",
-            padding: "8px",
-            marginBottom: "6px"
-          }}
-        >
-          <b>{log.action.replaceAll("_"," ")}</b>
-          <br />
-
-          {log.performedBy && (
-            <span>
-              {log.performedBy.name} ({log.performedByRole})
-            </span>
-          )}
-
-          <br />
-
-          {log.note && <span>{log.note}</span>}
-
-          <br />
-
-          <small>
-            {new Date(log.createdAt).toLocaleString()}
-          </small>
-        </div>
-      ))}
+      <div className="timeline">
+        {logs.map((log) => (
+          <div
+            key={log._id}
+            className="timeline__item"
+          >
+            <div className="timeline__title">{log.action.replaceAll("_"," ")}</div>
+            {log.performedBy && (
+              <div className="timeline__meta">
+                {log.performedBy.name} ({log.performedByRole})
+              </div>
+            )}
+            {log.note && <div className="timeline__note">{log.note}</div>}
+            <div className="timeline__time">
+              {new Date(log.createdAt).toLocaleString()}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

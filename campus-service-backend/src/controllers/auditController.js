@@ -10,7 +10,7 @@ const getActionLogs = async (req, res) => {
     }
 
     const logs = await ActionLog.find()
-      .populate("userId", "name email role")
+      .populate("performedBy", "name email role")
       .sort({ createdAt: -1 })
       .limit(200);
 
@@ -29,8 +29,8 @@ const getLogsByUser = async (req, res) => {
 
     const { userId } = req.params;
 
-    const logs = await ActionLog.find({ userId })
-      .populate("userId", "name email role")
+    const logs = await ActionLog.find({ performedBy: userId })
+      .populate("performedBy", "name email role")
       .sort({ createdAt: -1 });
 
     res.json({ success: true, data: logs });
@@ -49,7 +49,7 @@ const getLogsByAction = async (req, res) => {
     const { action } = req.params;
 
     const logs = await ActionLog.find({ action })
-      .populate("userId", "name email role")
+      .populate("performedBy", "name email role")
       .sort({ createdAt: -1 });
 
     res.json({ success: true, data: logs });
@@ -75,8 +75,8 @@ const getLogsByRequest = async (req, res) => {
       }
     }
 
-    const logs = await ActionLog.find({ resourceType: "request", resourceId: requestId })
-      .populate("userId", "name email role")
+    const logs = await ActionLog.find({ requestId })
+      .populate("performedBy", "name email role")
       .sort({ createdAt: -1 });
 
     res.json({ success: true, data: logs });

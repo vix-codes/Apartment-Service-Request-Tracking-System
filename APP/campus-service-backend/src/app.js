@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 
-const requestRoutes = require("./routes/requestRoutes");
+const complaintRoutes = require("./routes/complaintRoutes");
 const authRoutes = require("./routes/authRoutes");
 const auditRoutes = require("./routes/auditRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
@@ -46,7 +46,7 @@ app.get("/health", (req, res) => {
 
 // 🟢 ROUTES
 app.use("/auth", authRoutes);
-app.use("/requests", requestRoutes);
+app.use("/complaints", complaintRoutes);
 app.use("/audit", auditRoutes);
 app.use("/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);

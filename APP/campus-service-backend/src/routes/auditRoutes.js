@@ -7,7 +7,7 @@ const {
   getActionLogs,
   getLogsByUser,
   getLogsByAction,
-  getLogsByRequest,
+  getLogsByComplaint,
 } = require("../controllers/auditController");
 
 // 🔵 GET ALL ACTION LOGS (admin)
@@ -19,7 +19,7 @@ router.get("/user/:userId", auth, getLogsByUser);
 // 🔵 GET LOGS BY ACTION (admin)
 router.get("/action/:action", auth, getLogsByAction);
 
-// 🔵 GET LOGS BY REQUEST (admin/owner/assigned)
-router.get("/request/:requestId", auth, getLogsByRequest);
+// 🔵 GET LOGS BY COMPLAINT (admin/owner/assigned)
+router.get("/complaint/:complaintId", auth, getLogsByComplaint);
 
 module.exports = router;

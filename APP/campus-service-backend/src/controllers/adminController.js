@@ -1,5 +1,5 @@
 const User = require("../models/User");
-const Request = require("../models/Request");
+const Complaint = require("../models/Complaint");
 const bcrypt = require("bcryptjs");
 const logAction = require("../utils/actionLogger");
 
@@ -110,13 +110,13 @@ exports.getAdminStats = async (req, res) => {
     }
 
     const totalUsers = await User.countDocuments();
-    const totalRequests = await Request.countDocuments();
-    const open = await Request.countDocuments({ status: "NEW" });
-    const progress = await Request.countDocuments({ status: "IN_PROGRESS" });
-    const closed = await Request.countDocuments({ status: "CLOSED" });
+    const totalComplaints = await Complaint.countDocuments();
+    const open = await Complaint.countDocuments({ status: "NEW" });
+    const progress = await Complaint.countDocuments({ status: "IN_PROGRESS" });
+    const closed = await Complaint.countDocuments({ status: "CLOSED" });
 
     // Average resolution time (ms) for closed requests
-    const avgResAgg = await Request.aggregate([
+    const avgResAgg = await Complaint.aggregate([
       { $match: { status: "CLOSED", closedAt: { $ne: null } } },
       { $project: { diff: { $subtract: ["$closedAt", "$createdAt"] } } },
       { $group: { _id: null, avgResolutionMs: { $avg: "$diff" } } },
@@ -125,7 +125,7 @@ exports.getAdminStats = async (req, res) => {
     const avgResolutionMs = avgResAgg[0]?.avgResolutionMs || 0;
 
     // Technician performance: count handled & avg resolution per technician (completedBy)
-    const staffPerf = await Request.aggregate([
+    const staffPerf = await Complaint.aggregate([
       { $match: { status: "COMPLETED", completedBy: { $ne: null } } },
       {
         $group: {
@@ -159,7 +159,7 @@ exports.getAdminStats = async (req, res) => {
       success: true,
       data: {
         totalUsers,
-        totalRequests,
+        totalComplaints,
         open,
         progress,
         closed,

@@ -14,9 +14,9 @@ const actionLogSchema = new mongoose.Schema(
       // USER_CREATED
     },
 
-    requestId: {
+    complaintId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Request",
+      ref: "Complaint",
       default: null,
     },
 
@@ -71,7 +71,7 @@ const actionLogSchema = new mongoose.Schema(
 );
 
 // fast lookup
-actionLogSchema.index({ requestId: 1 });
+actionLogSchema.index({ complaintId: 1 });
 actionLogSchema.index({ performedBy: 1 });
 actionLogSchema.index({ createdAt: -1 });
 

@@ -1,4 +1,4 @@
-const Request = require("../models/Request");
+const Complaint = require("../models/Complaint");
 const User = require("../models/User");
 
 const getAdminAnalytics = async (req, res) => {
@@ -7,33 +7,33 @@ const getAdminAnalytics = async (req, res) => {
       return res.status(403).json({ message: "Admin only" });
     }
 
-    const totalComplaints = await Request.countDocuments();
-    const open = await Request.countDocuments({ status: "NEW" });
-    const assigned = await Request.countDocuments({ status: "ASSIGNED" });
-    const inProgress = await Request.countDocuments({ status: "IN_PROGRESS" });
-    const completed = await Request.countDocuments({ status: "COMPLETED" });
-    const closed = await Request.countDocuments({ status: "CLOSED" });
-    const rejected = await Request.countDocuments({ status: "REJECTED" });
+    const totalComplaints = await Complaint.countDocuments();
+    const open = await Complaint.countDocuments({ status: "NEW" });
+    const assigned = await Complaint.countDocuments({ status: "ASSIGNED" });
+    const inProgress = await Complaint.countDocuments({ status: "IN_PROGRESS" });
+    const completed = await Complaint.countDocuments({ status: "COMPLETED" });
+    const closed = await Complaint.countDocuments({ status: "CLOSED" });
+    const rejected = await Complaint.countDocuments({ status: "REJECTED" });
 
-    const critical = await Request.countDocuments({ priority: "critical" });
-    const high = await Request.countDocuments({ priority: "high" });
+    const critical = await Complaint.countDocuments({ priority: "critical" });
+    const high = await Complaint.countDocuments({ priority: "high" });
 
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
-    const todayCreated = await Request.countDocuments({ createdAt: { $gte: startOfDay } });
-    const todayClosed = await Request.countDocuments({
+    const todayCreated = await Complaint.countDocuments({ createdAt: { $gte: startOfDay } });
+    const todayClosed = await Complaint.countDocuments({
       closedAt: { $gte: startOfDay },
       status: "CLOSED",
     });
 
-    const avgResAgg = await Request.aggregate([
+    const avgResAgg = await Complaint.aggregate([
       { $match: { status: "CLOSED", closedAt: { $ne: null } } },
       { $project: { diff: { $subtract: ["$closedAt", "$createdAt"] } } },
       { $group: { _id: null, avgResolutionMs: { $avg: "$diff" } } },
     ]);
     const avgResolutionMs = avgResAgg[0]?.avgResolutionMs || 0;
 
-    const techPerf = await Request.aggregate([
+    const techPerf = await Complaint.aggregate([
       { $match: { status: "COMPLETED", completedBy: { $ne: null } } },
       {
         $group: {
@@ -63,7 +63,7 @@ const getAdminAnalytics = async (req, res) => {
       { $sort: { completedCount: -1 } },
     ]);
 
-    const pendingByTech = await Request.aggregate([
+    const pendingByTech = await Complaint.aggregate([
       { $match: { status: { $in: ["ASSIGNED", "IN_PROGRESS"] }, assignedTo: { $ne: null } } },
       { $group: { _id: "$assignedTo", pendingCount: { $sum: 1 } } },
       {

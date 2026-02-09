@@ -5,7 +5,7 @@ const sendNotification = async ({
   title,
   message,
   type = "SYSTEM",
-  requestId = null,
+  complaintId = null,
 }) => {
   try {
     await Notification.create({
@@ -13,7 +13,7 @@ const sendNotification = async ({
       title,
       message,
       type,
-      requestId,
+      complaintId,
     });
   } catch (err) {
     console.log("Notification error:", err.message);

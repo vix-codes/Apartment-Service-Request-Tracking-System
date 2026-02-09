@@ -6,7 +6,7 @@ const authMiddleware = require("../middlewares/authMiddleware");
 const {
   login,
   createUserByAdmin,
-  getStaffUsers,
+  getTechnicians,
   getAllUsers,
 } = require("../controllers/authController");
 
@@ -19,8 +19,8 @@ router.post("/login", login);
 router.post("/create-user", authMiddleware, createUserByAdmin);
 
 
-// 🔒 GET STAFF LIST (dropdown for assign)
-router.get("/staff", authMiddleware, getStaffUsers);
+// 🔒 GET TECHNICIANS LIST (dropdown for assign)
+router.get("/technicians", authMiddleware, getTechnicians);
 
 
 // 🔒 GET ALL USERS (admin panel)

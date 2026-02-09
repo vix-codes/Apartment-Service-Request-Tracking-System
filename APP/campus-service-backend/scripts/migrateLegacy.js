@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const mongoose = require("mongoose");
 const User = require("../src/models/User");
-const Request = require("../src/models/Request");
+const Complaint = require("../src/models/Complaint");
 const Notification = require("../src/models/Notification");
 const ActionLog = require("../src/models/ActionLog");
 
@@ -53,7 +53,7 @@ const assignTokens = async (requests) => {
   }
 
   for (const u of updates) {
-    await Request.updateOne({ _id: u._id }, { $set: { token: u.token } });
+    await Complaint.updateOne({ _id: u._id }, { $set: { token: u.token } });
   }
 
   return updates.length;
@@ -77,7 +77,7 @@ const run = async () => {
   }
 
   // 2) Status & field normalization
-  const requests = await Request.find().select(
+  const requests = await Complaint.find().select(
     "_id status rejectReason priority category token createdAt"
   );
   for (const r of requests) {
@@ -86,7 +86,7 @@ const run = async () => {
     if (mapped === "NEW" && r.rejectReason) {
       status = "REJECTED";
     }
-    await Request.updateOne(
+    await Complaint.updateOne(
       { _id: r._id },
       {
         $set: {
@@ -99,28 +99,36 @@ const run = async () => {
   }
 
   // 3) Tokens
-  const all = await Request.find().sort({ createdAt: 1 }).select("_id token createdAt");
+  const all = await Complaint.find().sort({ createdAt: 1 }).select("_id token createdAt");
   const tokenCount = await assignTokens(all);
 
   // 4) Backfill relatedToken
   const tokenById = new Map(
-    (await Request.find().select("_id token")).map((r) => [String(r._id), r.token || ""])
+    (await Complaint.find().select("_id token")).map((r) => [String(r._id), r.token || ""])
   );
-  const notifications = await Notification.find().select("_id requestId relatedToken");
+  const notifications = await Notification.find().select("_id requestId complaintId relatedToken");
   for (const n of notifications) {
-    if (!n.relatedToken && n.requestId) {
-      const token = tokenById.get(String(n.requestId)) || "";
+    const legacyId = n.complaintId || n.requestId;
+    if (!n.relatedToken && legacyId) {
+      const token = tokenById.get(String(legacyId)) || "";
       if (token) {
-        await Notification.updateOne({ _id: n._id }, { $set: { relatedToken: token } });
+        await Notification.updateOne(
+          { _id: n._id },
+          { $set: { relatedToken: token, complaintId: legacyId } }
+        );
       }
     }
   }
-  const logs = await ActionLog.find().select("_id requestId relatedToken");
+  const logs = await ActionLog.find().select("_id requestId complaintId relatedToken");
   for (const l of logs) {
-    if (!l.relatedToken && l.requestId) {
-      const token = tokenById.get(String(l.requestId)) || "";
+    const legacyId = l.complaintId || l.requestId;
+    if (!l.relatedToken && legacyId) {
+      const token = tokenById.get(String(legacyId)) || "";
       if (token) {
-        await ActionLog.updateOne({ _id: l._id }, { $set: { relatedToken: token } });
+        await ActionLog.updateOne(
+          { _id: l._id },
+          { $set: { relatedToken: token, complaintId: legacyId } }
+        );
       }
     }
   }

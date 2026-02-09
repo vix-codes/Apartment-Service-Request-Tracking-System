@@ -5,9 +5,9 @@ import NoticeBanner from "../components/NoticeBanner";
 
 function AdminDashboard() {
   const role = localStorage.getItem("role");
-  const [requests, setRequests] = useState([]);
-  const [staff, setStaff] = useState([]);
-  const [selectedStaffByRequestId, setSelectedStaffByRequestId] = useState({});
+  const [complaints, setComplaints] = useState([]);
+  const [technicians, setTechnicians] = useState([]);
+  const [selectedTechnicianByComplaintId, setSelectedTechnicianByComplaintId] = useState({});
   const [notice, setNotice] = useState(null);
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [showActivity, setShowActivity] = useState(false);
@@ -20,19 +20,19 @@ function AdminDashboard() {
   const [newUserRole,setNewUserRole]=useState("tenant");
 
   useEffect(() => {
-    fetchRequests();
-    fetchStaff();
+    fetchComplaints();
+    fetchTechnicians();
     fetchAnalytics();
   }, []);
 
-  const fetchRequests = async () => {
-    const res = await API.get("/requests");
-    setRequests(res.data.data);
+  const fetchComplaints = async () => {
+    const res = await API.get("/complaints");
+    setComplaints(res.data.data);
   };
 
-  const fetchStaff = async () => {
-    const res = await API.get("/auth/staff");
-    setStaff(res.data.data);
+  const fetchTechnicians = async () => {
+    const res = await API.get("/auth/technicians");
+    setTechnicians(res.data.data);
   };
 
   const fetchAnalytics = async () => {
@@ -56,15 +56,15 @@ function AdminDashboard() {
   };
 
   const assign = async (id) => {
-    const staffId = selectedStaffByRequestId[id];
-    if (!staffId) {
+    const technicianId = selectedTechnicianByComplaintId[id];
+    if (!technicianId) {
       setNotice({ tone: "error", message: "Select a technician to assign." });
       return;
     }
 
     try {
-      await API.put(`/requests/assign/${id}`, {
-        technicianId: staffId,
+      await API.put(`/complaints/assign/${id}`, {
+        technicianId,
       });
       setNotice({ tone: "success", message: "Complaint assigned successfully." });
     } catch (err) {
@@ -72,15 +72,15 @@ function AdminDashboard() {
       setNotice({ tone: "error", message: "Unable to assign complaint." });
     }
 
-    setSelectedStaffByRequestId((prev) => ({ ...prev, [id]: "" }));
-    fetchRequests();
+    setSelectedTechnicianByComplaintId((prev) => ({ ...prev, [id]: "" }));
+    fetchComplaints();
   };
 
-  const deleteReq = async (id) => {
+  const deleteComplaint = async (id) => {
     try {
-      await API.delete(`/requests/${id}`);
+      await API.delete(`/complaints/${id}`);
       setNotice({ tone: "success", message: "Complaint deleted." });
-      fetchRequests();
+      fetchComplaints();
     } catch (err) {
       console.log(err);
       setNotice({ tone: "error", message: "Unable to delete complaint." });
@@ -89,11 +89,11 @@ function AdminDashboard() {
 
   const closeComplaint = async (id) => {
     try {
-      await API.put(`/requests/status/${id}`, {
+      await API.put(`/complaints/status/${id}`, {
         status: "CLOSED",
       });
       setNotice({ tone: "success", message: "Complaint closed." });
-      fetchRequests();
+      fetchComplaints();
     } catch (err) {
       console.log(err);
       setNotice({ tone: "error", message: "Unable to close complaint." });
@@ -102,11 +102,11 @@ function AdminDashboard() {
 
   const reopenComplaint = async (id) => {
     try {
-      await API.put(`/requests/status/${id}`, {
+      await API.put(`/complaints/status/${id}`, {
         status: "NEW",
       });
       setNotice({ tone: "success", message: "Complaint reopened." });
-      fetchRequests();
+      fetchComplaints();
     } catch (err) {
       console.log(err);
       setNotice({ tone: "error", message: "Unable to reopen complaint." });
@@ -126,7 +126,7 @@ function AdminDashboard() {
 
       setNotice({ tone: "success", message: "User created successfully." });
       setName(""); setEmail(""); setPassword("");
-      fetchStaff();
+      fetchTechnicians();
     } catch {
       setNotice({ tone: "error", message: "Error creating user." });
     }
@@ -286,11 +286,11 @@ function AdminDashboard() {
         </div>
       )}
 
-      {/* REQUESTS */}
+      {/* complaints */}
       <div className="section">
         <h3>All Complaints</h3>
         <div className="grid">
-          {requests.map((req) => (
+          {complaints.map((req) => (
             <div key={req._id} className="card">
               <div className="card__header">
                 <div>
@@ -322,16 +322,16 @@ function AdminDashboard() {
                   <>
                     <select
                       className="select"
-                      value={selectedStaffByRequestId[req._id] || ""}
+                      value={selectedTechnicianByComplaintId[req._id] || ""}
                       onChange={(e) =>
-                        setSelectedStaffByRequestId((prev) => ({
+                        setSelectedTechnicianByComplaintId((prev) => ({
                           ...prev,
                           [req._id]: e.target.value,
                         }))
                       }
                     >
                       <option value="" disabled>Select technician</option>
-                      {staff.map(s=>(
+                      {technicians.map(s=>(
                         <option key={s._id} value={s._id}>{s.name}</option>
                       ))}
                     </select>
@@ -350,7 +350,7 @@ function AdminDashboard() {
                   </button>
                 )}
                 {role === "admin" && (
-                  <button className="button button--danger" onClick={()=>deleteReq(req._id)}>Delete</button>
+                  <button className="button button--danger" onClick={()=>deleteComplaint(req._id)}>Delete</button>
                 )}
               </div>
             </div>

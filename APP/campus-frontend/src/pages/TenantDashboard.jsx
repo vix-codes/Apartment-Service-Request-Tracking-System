@@ -2,31 +2,31 @@ import { useEffect, useState } from "react";
 import API from "../services/api";
 import NoticeBanner from "../components/NoticeBanner";
 
-function StudentDashboard() {
+function TenantDashboard() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState("");
-  const [requests, setRequests] = useState([]);
+  const [complaints, setComplaints] = useState([]);
   const [notice, setNotice] = useState(null);
 
   useEffect(() => {
-    fetchRequests();
+    fetchComplaints();
   }, []);
 
-  const fetchRequests = async () => {
+  const fetchComplaints = async () => {
     try {
-      const res = await API.get("/requests");
-      setRequests(res.data.data);
+      const res = await API.get("/complaints");
+      setComplaints(res.data.data);
     } catch (err) {
       console.log(err);
     }
   };
 
-  const createRequest = async (e) => {
+  const createComplaint = async (e) => {
     e.preventDefault();
 
     try {
-      await API.post("/requests", {
+      await API.post("/complaints", {
         title,
         description,
         image,
@@ -36,7 +36,7 @@ function StudentDashboard() {
       setTitle("");
       setDescription("");
       setImage("");
-      fetchRequests();
+      fetchComplaints();
     } catch {
       setNotice({ tone: "error", message: "Error creating complaint." });
     }
@@ -44,11 +44,11 @@ function StudentDashboard() {
 
   const reopenComplaint = async (id) => {
     try {
-      await API.put(`/requests/status/${id}`, {
+      await API.put(`/complaints/status/${id}`, {
         status: "NEW",
       });
       setNotice({ tone: "success", message: "Complaint reopened." });
-      fetchRequests();
+      fetchComplaints();
     } catch {
       setNotice({ tone: "error", message: "Unable to reopen complaint." });
     }
@@ -78,7 +78,7 @@ function StudentDashboard() {
       <div className="card">
         <h3>Create Complaint</h3>
 
-        <form onSubmit={createRequest} className="form">
+        <form onSubmit={createComplaint} className="form">
           <label className="form__label">
             Title
             <input
@@ -118,7 +118,7 @@ function StudentDashboard() {
         <h3>All Complaints</h3>
 
         <div className="grid">
-          {requests.map((req) => (
+          {complaints.map((req) => (
             <div
               key={req._id}
               className="card"
@@ -178,4 +178,4 @@ function StudentDashboard() {
   );
 }
 
-export default StudentDashboard;
+export default TenantDashboard;

@@ -1,4 +1,4 @@
-const Request = require("../models/Request");
+const Complaint = require("../models/Complaint");
 const User = require("../models/User");
 const logAction = require("../utils/actionLogger");
 const { createNotification, notifyRoles } = require("../utils/notifier");
@@ -29,7 +29,7 @@ const normalizeCategory = (category) => {
 const generateToken = async () => {
   const year = new Date().getFullYear();
   const prefix = `APT-${year}-`;
-  const latest = await Request.findOne({ token: new RegExp(`^${prefix}`) })
+  const latest = await Complaint.findOne({ token: new RegExp(`^${prefix}`) })
     .sort({ token: -1 })
     .select("token")
     .lean();
@@ -45,7 +45,7 @@ const generateToken = async () => {
 // ==============================
 // CREATE COMPLAINT (TENANT)
 // ==============================
-exports.createRequest = async (req, res) => {
+exports.createComplaint = async (req, res) => {
   try {
     if (req.user.role !== "tenant") {
       return res.status(403).json({ message: "Tenant only" });
@@ -60,7 +60,7 @@ exports.createRequest = async (req, res) => {
     const token = await generateToken();
     const priority = detectPriority(`${title} ${description}`);
 
-    const request = await Request.create({
+    const complaint = await Complaint.create({
       title,
       description,
       image: image || "",
@@ -73,15 +73,15 @@ exports.createRequest = async (req, res) => {
 
     await logAction({
       action: "COMPLAINT_CREATED",
-      requestId: request._id,
-      relatedToken: request.token,
+      complaintId: complaint._id,
+      relatedToken: complaint.token,
       performedBy: req.user.id,
       performedByRole: req.user.role,
       note: `Complaint created: ${title}`,
       req,
     });
 
-    res.status(201).json({ success: true, data: request });
+    res.status(201).json({ success: true, data: complaint });
   } catch (err) {
     if (err?.code === 11000) {
       return res.status(409).json({ message: "Token conflict, try again" });
@@ -91,9 +91,9 @@ exports.createRequest = async (req, res) => {
 };
 
 // ==============================
-// GET REQUESTS (ROLE FILTERED)
+// GET COMPLAINTS (ROLE FILTERED)
 // ==============================
-exports.getRequests = async (req, res) => {
+exports.getComplaints = async (req, res) => {
   try {
     const role = req.user.role;
     const userId = req.user.id;
@@ -105,7 +105,7 @@ exports.getRequests = async (req, res) => {
       filter.assignedTo = userId;
     }
 
-    const requests = await Request.find(filter)
+    const complaints = await Complaint.find(filter)
       .populate("createdBy", "name role")
       .populate("assignedTo", "name role")
       .populate("assignedBy", "name role")
@@ -114,7 +114,7 @@ exports.getRequests = async (req, res) => {
       .populate("rejectedBy", "name role")
       .sort({ createdAt: -1 });
 
-    res.json({ success: true, data: requests });
+    res.json({ success: true, data: complaints });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -123,7 +123,7 @@ exports.getRequests = async (req, res) => {
 // ==============================
 // ASSIGN TO TECHNICIAN (MANAGER/ADMIN)
 // ==============================
-exports.assignRequest = async (req, res) => {
+exports.assignComplaint = async (req, res) => {
   try {
     if (!["manager", "admin"].includes(req.user.role)) {
       return res.status(403).json({ message: "Manager/Admin only" });
@@ -136,11 +136,11 @@ exports.assignRequest = async (req, res) => {
       return res.status(400).json({ message: "Technician required" });
     }
 
-    const request = await Request.findById(id);
-    if (!request) return res.status(404).json({ message: "Request not found" });
+    const complaint = await Complaint.findById(id);
+    if (!complaint) return res.status(404).json({ message: "Complaint not found" });
 
-    if (!["NEW", "REJECTED"].includes(request.status)) {
-      return res.status(400).json({ message: "Request not assignable" });
+    if (!["NEW", "REJECTED"].includes(complaint.status)) {
+      return res.status(400).json({ message: "Complaint not assignable" });
     }
 
     const tech = await User.findById(technicianId);
@@ -148,20 +148,20 @@ exports.assignRequest = async (req, res) => {
       return res.status(400).json({ message: "Invalid technician" });
     }
 
-    const previousStatus = request.status;
-    request.assignedTo = technicianId;
-    request.assignedBy = req.user.id;
-    request.assignedAt = new Date();
-    request.status = "ASSIGNED";
-    request.rejectReason = "";
-    request.rejectedAt = null;
-    request.rejectedBy = null;
-    await request.save();
+    const previousStatus = complaint.status;
+    complaint.assignedTo = technicianId;
+    complaint.assignedBy = req.user.id;
+    complaint.assignedAt = new Date();
+    complaint.status = "ASSIGNED";
+    complaint.rejectReason = "";
+    complaint.rejectedAt = null;
+    complaint.rejectedBy = null;
+    await complaint.save();
 
     await logAction({
       action: "COMPLAINT_ASSIGNED",
-      requestId: request._id,
-      relatedToken: request.token,
+      complaintId: complaint._id,
+      relatedToken: complaint.token,
       performedBy: req.user.id,
       performedByRole: req.user.role,
       assignedTo: technicianId,
@@ -174,19 +174,19 @@ exports.assignRequest = async (req, res) => {
     await createNotification({
       userId: technicianId,
       title: "New complaint assigned",
-      message: `Complaint ${request.token} assigned to you.`,
+      message: `Complaint ${complaint.token} assigned to you.`,
       type: "COMPLAINT_ASSIGNED",
-      requestId: request._id,
-      relatedToken: request.token,
+      complaintId: complaint._id,
+      relatedToken: complaint.token,
     });
 
     await createNotification({
-      userId: request.createdBy,
+      userId: complaint.createdBy,
       title: "Complaint assigned",
-      message: `Your complaint ${request.token} was assigned.`,
+      message: `Your complaint ${complaint.token} was assigned.`,
       type: "COMPLAINT_ASSIGNED",
-      requestId: request._id,
-      relatedToken: request.token,
+      complaintId: complaint._id,
+      relatedToken: complaint.token,
     });
 
     res.json({ success: true, message: "Assigned to technician" });
@@ -205,28 +205,28 @@ exports.updateStatus = async (req, res) => {
     const role = req.user.role;
     const userId = req.user.id;
 
-    const request = await Request.findById(id);
-    if (!request) return res.status(404).json({ message: "Not found" });
+    const complaint = await Complaint.findById(id);
+    if (!complaint) return res.status(404).json({ message: "Not found" });
 
-    const previousStatus = request.status;
+    const previousStatus = complaint.status;
 
     if (status === "IN_PROGRESS") {
       if (role !== "technician") {
         return res.status(403).json({ message: "Technician only" });
       }
-      if (!request.assignedTo || request.assignedTo.toString() !== userId) {
+      if (!complaint.assignedTo || complaint.assignedTo.toString() !== userId) {
         return res.status(403).json({ message: "Not assigned to you" });
       }
-      if (request.status !== "ASSIGNED") {
+      if (complaint.status !== "ASSIGNED") {
         return res.status(400).json({ message: "Invalid status transition" });
       }
-      request.status = "IN_PROGRESS";
-      request.startedAt = new Date();
+      complaint.status = "IN_PROGRESS";
+      complaint.startedAt = new Date();
 
       await logAction({
         action: "COMPLAINT_STARTED",
-        requestId: request._id,
-        relatedToken: request.token,
+        complaintId: complaint._id,
+        relatedToken: complaint.token,
         performedBy: userId,
         performedByRole: role,
         previousStatus,
@@ -238,21 +238,21 @@ exports.updateStatus = async (req, res) => {
       if (role !== "technician") {
         return res.status(403).json({ message: "Technician only" });
       }
-      if (!request.assignedTo || request.assignedTo.toString() !== userId) {
+      if (!complaint.assignedTo || complaint.assignedTo.toString() !== userId) {
         return res.status(403).json({ message: "Not assigned to you" });
       }
-      if (request.status !== "IN_PROGRESS") {
+      if (complaint.status !== "IN_PROGRESS") {
         return res.status(400).json({ message: "Invalid status transition" });
       }
-      request.status = "COMPLETED";
-      request.completedAt = new Date();
-      request.completedBy = userId;
-      request.resolutionNote = resolutionNote || "";
+      complaint.status = "COMPLETED";
+      complaint.completedAt = new Date();
+      complaint.completedBy = userId;
+      complaint.resolutionNote = resolutionNote || "";
 
       await logAction({
         action: "COMPLAINT_COMPLETED",
-        requestId: request._id,
-        relatedToken: request.token,
+        complaintId: complaint._id,
+        relatedToken: complaint.token,
         performedBy: userId,
         performedByRole: role,
         previousStatus,
@@ -264,62 +264,62 @@ exports.updateStatus = async (req, res) => {
       await notifyRoles({
         roles: ["manager", "admin"],
         title: "Complaint completed",
-        message: `Complaint ${request.token} marked completed.`,
+        message: `Complaint ${complaint.token} marked completed.`,
         type: "COMPLAINT_COMPLETED",
-        requestId: request._id,
-        relatedToken: request.token,
+        complaintId: complaint._id,
+        relatedToken: complaint.token,
       });
     } else if (status === "REJECTED") {
       if (role !== "technician") {
         return res.status(403).json({ message: "Technician only" });
       }
-      if (!request.assignedTo || request.assignedTo.toString() !== userId) {
+      if (!complaint.assignedTo || complaint.assignedTo.toString() !== userId) {
         return res.status(403).json({ message: "Not assigned to you" });
       }
-      if (!["ASSIGNED", "IN_PROGRESS"].includes(request.status)) {
+      if (!["ASSIGNED", "IN_PROGRESS"].includes(complaint.status)) {
         return res.status(400).json({ message: "Invalid status transition" });
       }
-      request.status = "REJECTED";
-      request.rejectedAt = new Date();
-      request.rejectedBy = userId;
-      request.rejectReason = reason || "Rejected";
-      request.assignedTo = null;
+      complaint.status = "REJECTED";
+      complaint.rejectedAt = new Date();
+      complaint.rejectedBy = userId;
+      complaint.rejectReason = reason || "Rejected";
+      complaint.assignedTo = null;
 
       await logAction({
         action: "COMPLAINT_REJECTED",
-        requestId: request._id,
-        relatedToken: request.token,
+        complaintId: complaint._id,
+        relatedToken: complaint.token,
         performedBy: userId,
         performedByRole: role,
         previousStatus,
         newStatus: "REJECTED",
-        note: request.rejectReason,
+        note: complaint.rejectReason,
         req,
       });
 
       await createNotification({
-        userId: request.createdBy,
+        userId: complaint.createdBy,
         title: "Complaint rejected",
-        message: `Your complaint ${request.token} was rejected.`,
+        message: `Your complaint ${complaint.token} was rejected.`,
         type: "COMPLAINT_REJECTED",
-        requestId: request._id,
-        relatedToken: request.token,
+        complaintId: complaint._id,
+        relatedToken: complaint.token,
       });
     } else if (status === "CLOSED") {
       if (!["manager", "admin"].includes(role)) {
         return res.status(403).json({ message: "Manager/Admin only" });
       }
-      if (request.status !== "COMPLETED") {
+      if (complaint.status !== "COMPLETED") {
         return res.status(400).json({ message: "Invalid status transition" });
       }
-      request.status = "CLOSED";
-      request.closedAt = new Date();
-      request.closedBy = userId;
+      complaint.status = "CLOSED";
+      complaint.closedAt = new Date();
+      complaint.closedBy = userId;
 
       await logAction({
         action: "COMPLAINT_CLOSED",
-        requestId: request._id,
-        relatedToken: request.token,
+        complaintId: complaint._id,
+        relatedToken: complaint.token,
         performedBy: userId,
         performedByRole: role,
         previousStatus,
@@ -329,44 +329,44 @@ exports.updateStatus = async (req, res) => {
       });
 
       await createNotification({
-        userId: request.createdBy,
+        userId: complaint.createdBy,
         title: "Complaint closed",
-        message: `Your complaint ${request.token} was closed.`,
+        message: `Your complaint ${complaint.token} was closed.`,
         type: "COMPLAINT_CLOSED",
-        requestId: request._id,
-        relatedToken: request.token,
+        complaintId: complaint._id,
+        relatedToken: complaint.token,
       });
     } else if (status === "NEW") {
       const isManagerOrAdmin = ["manager", "admin"].includes(role);
       const isTenantOwner =
-        role === "tenant" && request.createdBy?.toString() === userId;
+        role === "tenant" && complaint.createdBy?.toString() === userId;
       if (!isManagerOrAdmin && !isTenantOwner) {
         return res.status(403).json({ message: "Not allowed" });
       }
-      if (isTenantOwner && request.status !== "REJECTED") {
+      if (isTenantOwner && complaint.status !== "REJECTED") {
         return res.status(400).json({ message: "Invalid status transition" });
       }
-      if (isManagerOrAdmin && !["REJECTED", "CLOSED"].includes(request.status)) {
+      if (isManagerOrAdmin && !["REJECTED", "CLOSED"].includes(complaint.status)) {
         return res.status(400).json({ message: "Invalid status transition" });
       }
-      request.status = "NEW";
-      request.assignedTo = null;
-      request.assignedBy = null;
-      request.assignedAt = null;
-      request.startedAt = null;
-      request.completedAt = null;
-      request.completedBy = null;
-      request.closedAt = null;
-      request.closedBy = null;
-      request.rejectedAt = null;
-      request.rejectedBy = null;
-      request.rejectReason = "";
-      request.resolutionNote = "";
+      complaint.status = "NEW";
+      complaint.assignedTo = null;
+      complaint.assignedBy = null;
+      complaint.assignedAt = null;
+      complaint.startedAt = null;
+      complaint.completedAt = null;
+      complaint.completedBy = null;
+      complaint.closedAt = null;
+      complaint.closedBy = null;
+      complaint.rejectedAt = null;
+      complaint.rejectedBy = null;
+      complaint.rejectReason = "";
+      complaint.resolutionNote = "";
 
       await logAction({
         action: "COMPLAINT_REOPENED",
-        requestId: request._id,
-        relatedToken: request.token,
+        complaintId: complaint._id,
+        relatedToken: complaint.token,
         performedBy: userId,
         performedByRole: role,
         previousStatus,
@@ -378,10 +378,10 @@ exports.updateStatus = async (req, res) => {
       return res.status(400).json({ message: "Unsupported status" });
     }
 
-    request.lastUpdatedBy = userId;
-    await request.save();
+    complaint.lastUpdatedBy = userId;
+    await complaint.save();
 
-    res.json({ success: true, message: "Status updated", data: request });
+    res.json({ success: true, message: "Status updated", data: complaint });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -404,18 +404,18 @@ exports.updatePriority = async (req, res) => {
       return res.status(400).json({ message: "Invalid priority" });
     }
 
-    const request = await Request.findById(id);
-    if (!request) return res.status(404).json({ message: "Not found" });
+    const complaint = await Complaint.findById(id);
+    if (!complaint) return res.status(404).json({ message: "Not found" });
 
-    const previous = request.priority;
-    request.priority = priority;
-    request.lastUpdatedBy = req.user.id;
-    await request.save();
+    const previous = complaint.priority;
+    complaint.priority = priority;
+    complaint.lastUpdatedBy = req.user.id;
+    await complaint.save();
 
     await logAction({
       action: "PRIORITY_UPDATED",
-      requestId: request._id,
-      relatedToken: request.token,
+      complaintId: complaint._id,
+      relatedToken: complaint.token,
       performedBy: req.user.id,
       performedByRole: req.user.role,
       note: `Priority ${previous} -> ${priority}`,
@@ -429,9 +429,9 @@ exports.updatePriority = async (req, res) => {
 };
 
 // ==============================
-// DELETE REQUEST (ADMIN)
+// DELETE complaint (ADMIN)
 // ==============================
-exports.deleteRequest = async (req, res) => {
+exports.deleteComplaint = async (req, res) => {
   try {
     if (req.user.role !== "admin") {
       return res.status(403).json({ message: "Admin only" });
@@ -439,13 +439,13 @@ exports.deleteRequest = async (req, res) => {
 
     const { id } = req.params;
 
-    const request = await Request.findByIdAndDelete(id);
-    if (!request) return res.status(404).json({ message: "Not found" });
+    const complaint = await Complaint.findByIdAndDelete(id);
+    if (!complaint) return res.status(404).json({ message: "Not found" });
 
     await logAction({
       action: "COMPLAINT_DELETED",
-      requestId: id,
-      relatedToken: request.token || "",
+      complaintId: id,
+      relatedToken: complaint.token || "",
       performedBy: req.user.id,
       performedByRole: req.user.role,
       note: "Complaint deleted",

@@ -6,11 +6,11 @@ const createNotification = async ({
   title = "Notification",
   message,
   type = "SYSTEM",
-  requestId = null,
+  complaintId = null,
   relatedToken = "",
 }) => {
   try {
-    await Notification.create({ userId, title, message, type, requestId, relatedToken });
+    await Notification.create({ userId, title, message, type, complaintId, relatedToken });
   } catch (err) {
     console.error("Failed to create notification:", err.message);
   }
@@ -21,7 +21,7 @@ const notifyUsers = async ({
   title = "Notification",
   message,
   type = "SYSTEM",
-  requestId = null,
+  complaintId = null,
   relatedToken = "",
 }) => {
   try {
@@ -31,7 +31,7 @@ const notifyUsers = async ({
       title,
       message,
       type,
-      requestId,
+      complaintId,
       relatedToken,
     }));
     await Notification.insertMany(docs);
@@ -45,7 +45,7 @@ const notifyRoles = async ({
   title = "Notification",
   message,
   type = "SYSTEM",
-  requestId = null,
+  complaintId = null,
   relatedToken = "",
 }) => {
   try {
@@ -56,7 +56,7 @@ const notifyRoles = async ({
       title,
       message,
       type,
-      requestId,
+      complaintId,
       relatedToken,
     });
   } catch (err) {

@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const requestSchema = new mongoose.Schema(
+const complaintSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -130,8 +130,8 @@ const requestSchema = new mongoose.Schema(
 );
 
 // indexes for performance
-requestSchema.index({ status: 1 });
-requestSchema.index({ assignedTo: 1 });
-requestSchema.index({ createdAt: -1 });
+complaintSchema.index({ status: 1 });
+complaintSchema.index({ assignedTo: 1 });
+complaintSchema.index({ createdAt: -1 });
 
-module.exports = mongoose.model("Request", requestSchema);
+module.exports = mongoose.model("Complaint", complaintSchema, "requests");

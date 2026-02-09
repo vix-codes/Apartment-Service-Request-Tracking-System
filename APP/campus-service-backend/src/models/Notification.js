@@ -36,9 +36,9 @@ const notificationSchema = new mongoose.Schema(
       default: "SYSTEM",
     },
 
-    requestId: {
+    complaintId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Request",
+      ref: "Complaint",
       default: null,
     },
 
@@ -64,5 +64,6 @@ const notificationSchema = new mongoose.Schema(
 notificationSchema.index({ userId: 1 });
 notificationSchema.index({ isRead: 1 });
 notificationSchema.index({ createdAt: -1 });
+notificationSchema.index({ complaintId: 1 });
 
 module.exports = mongoose.model("Notification", notificationSchema);

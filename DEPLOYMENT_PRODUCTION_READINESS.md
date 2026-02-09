@@ -1,4 +1,4 @@
-# Campus Service Request Tracking System - Deployment & Production Readiness
+# Apartment Complaint Management System - Deployment & Production Readiness
 
 This document summarizes production-ready features for scaling to 1000+ requests.
 

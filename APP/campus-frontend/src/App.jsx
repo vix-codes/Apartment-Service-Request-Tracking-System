@@ -1,7 +1,7 @@
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
-import StaffDashboard from "./pages/StaffDashboard";
-import StudentDashboard from "./pages/StudentDashboard";
+import TechnicianDashboard from "./pages/TechnicianDashboard";
+import TenantDashboard from "./pages/TenantDashboard";
 import NotificationBell from "./components/NotificationBell";
 
 function App() {
@@ -31,7 +31,7 @@ function App() {
           <div className="topbar__brand">Apartment Service</div>
           <NotificationBell />
         </div>
-        <StaffDashboard />
+        <TechnicianDashboard />
       </>
     );
   }
@@ -42,7 +42,7 @@ function App() {
         <div className="topbar__brand">Apartment Service</div>
         <NotificationBell />
       </div>
-      <StudentDashboard />
+      <TenantDashboard />
     </>
   );
 }

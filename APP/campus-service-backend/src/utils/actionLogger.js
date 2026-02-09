@@ -2,7 +2,7 @@ const ActionLog = require("../models/ActionLog");
 
 const logAction = async ({
   action,
-  requestId = null,
+  complaintId = null,
   relatedToken = "",
   performedBy,
   performedByRole = "",
@@ -15,7 +15,7 @@ const logAction = async ({
   try {
     await ActionLog.create({
       action,
-      requestId,
+      complaintId,
       relatedToken,
       performedBy,
       performedByRole,

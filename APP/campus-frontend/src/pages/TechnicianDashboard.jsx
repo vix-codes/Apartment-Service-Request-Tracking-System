@@ -2,19 +2,19 @@ import { useEffect, useState } from "react";
 import API from "../services/api";
 import NoticeBanner from "../components/NoticeBanner";
 
-function StaffDashboard() {
-  const [requests, setRequests] = useState([]);
+function TechnicianDashboard() {
+  const [complaints, setComplaints] = useState([]);
   const [reason, setReason] = useState("");
   const [notice, setNotice] = useState(null);
 
   useEffect(() => {
-    fetchRequests();
+    fetchComplaints();
   }, []);
 
-  const fetchRequests = async () => {
+  const fetchComplaints = async () => {
     try {
-      const res = await API.get("/requests");
-      setRequests(res.data.data || []);
+      const res = await API.get("/complaints");
+      setComplaints(res.data.data || []);
     } catch (err) {
       console.log(err);
     }
@@ -22,12 +22,12 @@ function StaffDashboard() {
 
   const startWork = async (id) => {
     try {
-      await API.put(`/requests/status/${id}`, {
+      await API.put(`/complaints/status/${id}`, {
         status: "IN_PROGRESS",
       });
 
       setNotice({ tone: "success", message: "Marked as in progress." });
-      fetchRequests();
+      fetchComplaints();
     } catch {
       setNotice({ tone: "error", message: "Unable to update status." });
     }
@@ -35,12 +35,12 @@ function StaffDashboard() {
 
   const completeTask = async (id) => {
     try {
-      await API.put(`/requests/status/${id}`, {
+      await API.put(`/complaints/status/${id}`, {
         status: "COMPLETED",
       });
 
       setNotice({ tone: "success", message: "Marked as completed." });
-      fetchRequests();
+      fetchComplaints();
     } catch {
       setNotice({ tone: "error", message: "Unable to update status." });
     }
@@ -53,14 +53,14 @@ function StaffDashboard() {
     }
 
     try {
-      await API.put(`/requests/status/${id}`, {
+      await API.put(`/complaints/status/${id}`, {
         status: "REJECTED",
         reason: reason,
       });
 
       setReason("");
       setNotice({ tone: "success", message: "Complaint rejected." });
-      fetchRequests();
+      fetchComplaints();
     } catch {
       setNotice({ tone: "error", message: "Unable to reject complaint." });
     }
@@ -88,7 +88,7 @@ function StaffDashboard() {
       />
 
       <div className="grid">
-        {requests.map((req) => (
+        {complaints.map((req) => (
           <div
             key={req._id}
             className="card"
@@ -147,7 +147,7 @@ function StaffDashboard() {
                 </>
               )}
 
-              {req.status === "COMPLETED" && <span className="status status--completed">Completed *</span>}
+              {req.status === "COMPLETED" && <span className="status status--completed">Completed</span>}
             </div>
           </div>
         ))}
@@ -156,4 +156,4 @@ function StaffDashboard() {
   );
 }
 
-export default StaffDashboard;
+export default TechnicianDashboard;

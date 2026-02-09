@@ -4,22 +4,22 @@ const router = express.Router();
 const auth = require("../middlewares/authMiddleware");
 
 const {
-  createRequest,
-  getRequests,
-  assignRequest,
+  createComplaint,
+  getComplaints,
+  assignComplaint,
   updateStatus,
   updatePriority,
-  deleteRequest,
-} = require("../controllers/requestController");
+  deleteComplaint,
+} = require("../controllers/complaintController");
 
 // 🟢 ALL LOGGED IN USERS CAN VIEW (role-filtered)
-router.get("/", auth, getRequests);
+router.get("/", auth, getComplaints);
 
 // 🟢 TENANT CREATE
-router.post("/", auth, createRequest);
+router.post("/", auth, createComplaint);
 
 // 🟢 MANAGER/ADMIN ASSIGN
-router.put("/assign/:id", auth, assignRequest);
+router.put("/assign/:id", auth, assignComplaint);
 
 // 🟢 STATUS UPDATE
 router.put("/status/:id", auth, updateStatus);
@@ -28,6 +28,6 @@ router.put("/status/:id", auth, updateStatus);
 router.put("/priority/:id", auth, updatePriority);
 
 // 🟢 ADMIN DELETE
-router.delete("/:id", auth, deleteRequest);
+router.delete("/:id", auth, deleteComplaint);
 
 module.exports = router;

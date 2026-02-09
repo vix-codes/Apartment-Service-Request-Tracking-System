@@ -79,7 +79,7 @@ exports.createUserByAdmin = async (req, res) => {
 
 
 // 🟢 GET ALL TECHNICIANS (FOR DROPDOWN)
-exports.getStaffUsers = async (req, res) => {
+exports.getTechnicians = async (req, res) => {
   try {
     const staff = await User.find({
       role: "technician",

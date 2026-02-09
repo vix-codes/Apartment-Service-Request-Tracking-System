@@ -1,4 +1,4 @@
-# Campus Service Request Tracking System — Summary
+# Apartment Complaint Management System — Summary
 
 **Deployed Feature Set:** Full lifecycle tracking, RBAC enforcement, activity logging, notifications, evidence images, admin analytics, and production-grade security/logging.
 
@@ -173,7 +173,7 @@ docker-compose up --build
 
 ## Recruiter Summary
 
-> "Campus Service Request Tracking System designed for real, production-scale deployment. Handles 1000+ concurrent requests with enterprise-grade infrastructure:
+> "Apartment Complaint Management System designed for real, production-scale deployment. Handles 1000+ concurrent requests with enterprise-grade infrastructure:
 > 
 > **Security:** Helmet HTTP headers hardening, rate limiting (configurable per minute), NoSQL injection & XSS protection, JWT authentication with environment-configured secrets and expiry.
 > 

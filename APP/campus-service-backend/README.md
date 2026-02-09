@@ -1,6 +1,6 @@
-# Campus Service Request Tracking System — Backend
+# Apartment Complaint Management System — Backend
 
-**Designed for real campus-scale deployment.**
+**Designed for real residential-scale deployment.**
 
 ## Production-Ready Features
 
@@ -47,7 +47,7 @@
 3. **Update `.env` with your settings:**
    ```
    NODE_ENV=development
-   MONGO_URI=mongodb://localhost:27017/campusdb
+   MONGO_URI=mongodb://localhost:27017/apartmentdb
    PORT=5000
    JWT_SECRET=dev_secret_change_in_prod
    RATE_LIMIT_MAX=1000
@@ -102,7 +102,7 @@ NODE_ENV=production npm run start:prod
 | `PORT` | 5000 | Server port |
 | `JWT_SECRET` | secretkey | JWT signing key (CHANGE IN PROD!) |
 | `JWT_EXPIRES` | 7d | Token expiry |
-| `RATE_LIMIT_MAX` | 100 | Requests per minute |
+| `RATE_LIMIT_MAX` | 100 | Complaints per minute |
 | `CORS_ORIGINS` | localhost:5173 | Allowed CORS origins |
 | `LOG_LEVEL` | info | winston log level |
 
@@ -131,7 +131,7 @@ Uncomment and configure in `src/utils/sentry.js`, then wire into `server.js`:
 ```javascript
 const Sentry = require('@sentry/node');
 Sentry.init({ dsn: process.env.SENTRY_DSN, ... });
-app.use(Sentry.Handlers.requestHandler());
+app.use(Sentry.Handlers.ComplaintHandler());
 ```
 
 Set `SENTRY_DSN` in `.env`.
@@ -150,19 +150,19 @@ POST /auth/signup
 POST /auth/login
 ```
 
-### Requests
+### Complaints
 ```
-GET /requests
-POST /requests
-PUT /requests/assign/:id
-PUT /requests/staff-status/:id
-DELETE /requests/:id
+GET /complaints
+POST /complaints
+PUT /complaints/assign/:id
+PUT /complaints/staff-status/:id
+DELETE /complaints/:id
 ```
 
 ### Audit Logs
 ```
 GET /audit (admin)
-GET /audit/request/:requestId
+GET /audit/Complaint/:ComplaintId
 ```
 
 ### Notifications
@@ -178,8 +178,8 @@ server.js (entry point)
 ├─ dotenv (env config)
 ├─ Winston logger (logs/ rotation)
 ├─ Express app (hardened: helmet, rate-limit, sanitize, compression, cors)
-├─ Middleware: Morgan (HTTP logging), requestLogger, authMiddleware
-├─ Routes: /auth, /requests, /audit, /notifications
+├─ Middleware: Morgan (HTTP logging), ComplaintLogger, authMiddleware
+├─ Routes: /auth, /complaints, /audit, /notifications
 ├─ Error handler (logs to Winston)
 └─ Graceful shutdown (SIGTERM/SIGINT)
 ```
@@ -192,7 +192,7 @@ docker-compose up --build
 ```
 
 Test flows:
-1. Create request (student login)
+1. Create Complaint (student login)
 2. Assign to staff (admin)
 3. Update status (staff)
 4. Check logs: `docker logs <container_id>`

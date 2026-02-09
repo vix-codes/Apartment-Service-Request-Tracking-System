@@ -11,6 +11,8 @@ function AdminDashboard() {
   const [notice, setNotice] = useState(null);
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [showActivity, setShowActivity] = useState(false);
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
   const [name,setName]=useState("");
   const [email,setEmail]=useState("");
@@ -20,6 +22,7 @@ function AdminDashboard() {
   useEffect(() => {
     fetchRequests();
     fetchStaff();
+    fetchAnalytics();
   }, []);
 
   const fetchRequests = async () => {
@@ -30,6 +33,26 @@ function AdminDashboard() {
   const fetchStaff = async () => {
     const res = await API.get("/auth/staff");
     setStaff(res.data.data);
+  };
+
+  const fetchAnalytics = async () => {
+    try {
+      setAnalyticsLoading(true);
+      const res = await API.get("/api/admin/analytics");
+      setAnalytics(res.data.data);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  };
+
+  const formatDuration = (ms) => {
+    if (!ms || ms <= 0) return "0h 0m";
+    const totalMinutes = Math.round(ms / 60000);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return `${hours}h ${minutes}m`;
   };
 
   const assign = async (id) => {
@@ -129,6 +152,91 @@ function AdminDashboard() {
         tone={notice?.tone}
         onClose={() => setNotice(null)}
       />
+
+      {/* ANALYTICS */}
+      {(role === "admin" || role === "manager") && (
+        <div className="section">
+          <div className="card">
+            <div className="card__header">
+              <div>
+                <h3>System Analytics</h3>
+                <p className="muted">Live performance snapshot.</p>
+              </div>
+              <button
+                className="button button--ghost"
+                type="button"
+                onClick={fetchAnalytics}
+              >
+                Refresh
+              </button>
+            </div>
+
+            {analyticsLoading && <p className="muted">Loading analytics...</p>}
+
+            {!analyticsLoading && analytics && (
+              <>
+                <div className="grid">
+                  <div className="card">
+                    <h4>Overview</h4>
+                    <p>Total: {analytics.overview.totalComplaints}</p>
+                    <p>New: {analytics.overview.open}</p>
+                    <p>Assigned: {analytics.overview.assigned}</p>
+                    <p>In Progress: {analytics.overview.inProgress}</p>
+                    <p>Completed: {analytics.overview.completed}</p>
+                    <p>Closed: {analytics.overview.closed}</p>
+                    <p>Rejected: {analytics.overview.rejected}</p>
+                  </div>
+
+                  <div className="card">
+                    <h4>Priority</h4>
+                    <p>Critical: {analytics.priority.critical}</p>
+                    <p>High: {analytics.priority.high}</p>
+                  </div>
+
+                  <div className="card">
+                    <h4>Time</h4>
+                    <p>Avg resolution: {formatDuration(analytics.time.avgResolutionMs)}</p>
+                    <p>Today created: {analytics.time.todayCreated}</p>
+                    <p>Today closed: {analytics.time.todayClosed}</p>
+                  </div>
+
+                  <div className="card">
+                    <h4>Technicians</h4>
+                    <p>Total: {analytics.technicians.total}</p>
+                  </div>
+                </div>
+
+                <div className="section">
+                  <h4>Technician Performance</h4>
+                  {analytics.technicians.performance.length === 0 && (
+                    <p className="muted">No completed complaints yet.</p>
+                  )}
+                  {analytics.technicians.performance.map((t) => (
+                    <div key={t.technicianId} className="card">
+                      <p>{t.name || "Unknown"}</p>
+                      <p>Completed: {t.completedCount}</p>
+                      <p>Avg completion: {formatDuration(t.avgCompletionMs)}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="section">
+                  <h4>Pending Per Technician</h4>
+                  {analytics.technicians.pending.length === 0 && (
+                    <p className="muted">No pending assignments.</p>
+                  )}
+                  {analytics.technicians.pending.map((t) => (
+                    <div key={t.technicianId} className="card">
+                      <p>{t.name || "Unknown"}</p>
+                      <p>Pending: {t.pendingCount}</p>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* CREATE USER (admin only, collapsible) */}
       {role === "admin" && (

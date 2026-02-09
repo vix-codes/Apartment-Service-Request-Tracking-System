@@ -37,7 +37,7 @@ exports.login = async (req, res) => {
 };
 
 
-// 🟢 ADMIN CREATE USER (staff/student/admin)
+// 🟢 ADMIN CREATE USER (tenant/technician/manager)
 exports.createUserByAdmin = async (req, res) => {
   try {
     if (req.user.role !== "admin")
@@ -47,6 +47,11 @@ exports.createUserByAdmin = async (req, res) => {
 
     if (!name || !email || !password || !role)
       return res.status(400).json({ message: "All fields required" });
+
+    const allowedRoles = ["tenant", "technician", "manager"];
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({ message: "Invalid role" });
+    }
 
     const exists = await User.findOne({ email });
     if (exists)
@@ -59,7 +64,6 @@ exports.createUserByAdmin = async (req, res) => {
       email,
       password: hashed,
       role,
-      createdBy: req.user.id,
     });
 
     res.status(201).json({
@@ -74,13 +78,13 @@ exports.createUserByAdmin = async (req, res) => {
 };
 
 
-// 🟢 GET ALL STAFF (FOR DROPDOWN)
+// 🟢 GET ALL TECHNICIANS (FOR DROPDOWN)
 exports.getStaffUsers = async (req, res) => {
   try {
     const staff = await User.find({
-      role: "staff",
+      role: "technician",
       isActive: true,
-    }).select("name email");
+    }).select("name email role");
 
     res.json({ success: true, data: staff });
 

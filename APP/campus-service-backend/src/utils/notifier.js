@@ -7,35 +7,65 @@ const createNotification = async ({
   message,
   type = "SYSTEM",
   requestId = null,
+  relatedToken = "",
 }) => {
   try {
-    await Notification.create({ userId, title, message, type, requestId });
+    await Notification.create({ userId, title, message, type, requestId, relatedToken });
   } catch (err) {
     console.error("Failed to create notification:", err.message);
   }
 };
 
-// send notification to all admins
-const notifyAdmins = async ({
+const notifyUsers = async ({
+  userIds,
   title = "Notification",
   message,
   type = "SYSTEM",
   requestId = null,
+  relatedToken = "",
 }) => {
   try {
-    const admins = await User.find({ role: "admin" }).select("_id");
-    if (!admins || admins.length === 0) return;
-    const docs = admins.map((a) => ({
-      userId: a._id,
+    if (!userIds || userIds.length === 0) return;
+    const docs = userIds.map((id) => ({
+      userId: id,
       title,
       message,
       type,
       requestId,
+      relatedToken,
     }));
     await Notification.insertMany(docs);
   } catch (err) {
-    console.error("Failed to notify admins:", err.message);
+    console.error("Failed to notify users:", err.message);
   }
 };
 
-module.exports = { createNotification, notifyAdmins };
+const notifyRoles = async ({
+  roles,
+  title = "Notification",
+  message,
+  type = "SYSTEM",
+  requestId = null,
+  relatedToken = "",
+}) => {
+  try {
+    const users = await User.find({ role: { $in: roles } }).select("_id");
+    if (!users || users.length === 0) return;
+    await notifyUsers({
+      userIds: users.map((u) => u._id),
+      title,
+      message,
+      type,
+      requestId,
+      relatedToken,
+    });
+  } catch (err) {
+    console.error("Failed to notify roles:", err.message);
+  }
+};
+
+module.exports = {
+  createNotification,
+  notifyUsers,
+  notifyRoles,
+};

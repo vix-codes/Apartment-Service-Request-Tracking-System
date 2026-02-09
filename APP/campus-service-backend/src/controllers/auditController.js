@@ -58,7 +58,7 @@ const getLogsByAction = async (req, res) => {
   }
 };
 
-// 🔵 GET LOGS BY REQUEST (auth: admin / owner / assigned staff)
+// 🔵 GET LOGS BY REQUEST (auth: admin / owner / assigned technician)
 const getLogsByRequest = async (req, res) => {
   try {
     const { requestId } = req.params;
@@ -66,7 +66,7 @@ const getLogsByRequest = async (req, res) => {
     const request = await Request.findById(requestId);
     if (!request) return res.status(404).json({ message: "Request not found" });
 
-    // RBAC: admin can view any; student can view if createdBy; staff can view if assignedTo
+    // RBAC: admin can view any; tenant can view if createdBy; technician can view if assignedTo
     if (req.user.role !== "admin") {
       const isOwner = request.createdBy?.toString() === req.user.id;
       const isAssigned = request.assignedTo?.toString() === req.user.id;

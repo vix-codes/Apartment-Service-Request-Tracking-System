@@ -14,6 +14,14 @@ const requestSchema = new mongoose.Schema(
       trim: true,
     },
 
+    token: {
+      type: String,
+      default: null,
+      unique: true,
+      sparse: true,
+      index: true,
+    },
+
     image: {
       type: String,
       default: "",
@@ -21,19 +29,19 @@ const requestSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["Open", "Assigned", "In Progress", "Closed"],
-      default: "Open",
+      enum: ["NEW", "ASSIGNED", "IN_PROGRESS", "COMPLETED", "CLOSED", "REJECTED"],
+      default: "NEW",
     },
 
     priority: {
       type: String,
-      enum: ["Low", "Medium", "High"],
-      default: "Medium",
+      enum: ["low", "medium", "high", "critical"],
+      default: "medium",
     },
 
     category: {
       type: String,
-      default: "General",
+      default: "general",
     },
 
     createdBy: {
@@ -80,6 +88,11 @@ const requestSchema = new mongoose.Schema(
       default: null,
     },
 
+    completedAt: {
+      type: Date,
+      default: null,
+    },
+
     closedAt: {
       type: Date,
       default: null,
@@ -87,6 +100,18 @@ const requestSchema = new mongoose.Schema(
 
     rejectedAt: {
       type: Date,
+      default: null,
+    },
+
+    completedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
+    rejectedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       default: null,
     },
 

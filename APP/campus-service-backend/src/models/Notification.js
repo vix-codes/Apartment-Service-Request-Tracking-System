@@ -10,7 +10,7 @@ const notificationSchema = new mongoose.Schema(
 
     title: {
       type: String,
-      required: true,
+      default: "",
     },
 
     message: {
@@ -26,6 +26,11 @@ const notificationSchema = new mongoose.Schema(
         "STATUS_UPDATED",
         "CLOSED",
         "REJECTED",
+        "COMPLAINT_CREATED",
+        "COMPLAINT_ASSIGNED",
+        "COMPLAINT_COMPLETED",
+        "COMPLAINT_CLOSED",
+        "COMPLAINT_REJECTED",
         "SYSTEM"
       ],
       default: "SYSTEM",
@@ -35,6 +40,11 @@ const notificationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Request",
       default: null,
+    },
+
+    relatedToken: {
+      type: String,
+      default: "",
     },
 
     isRead: {

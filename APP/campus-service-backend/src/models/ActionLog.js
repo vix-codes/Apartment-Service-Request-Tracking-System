@@ -20,6 +20,11 @@ const actionLogSchema = new mongoose.Schema(
       default: null,
     },
 
+    relatedToken: {
+      type: String,
+      default: "",
+    },
+
     performedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

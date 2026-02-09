@@ -3,6 +3,7 @@ const ActionLog = require("../models/ActionLog");
 const logAction = async ({
   action,
   requestId = null,
+  relatedToken = "",
   performedBy,
   performedByRole = "",
   assignedTo = null,
@@ -15,6 +16,7 @@ const logAction = async ({
     await ActionLog.create({
       action,
       requestId,
+      relatedToken,
       performedBy,
       performedByRole,
       assignedTo,
@@ -30,3 +32,4 @@ const logAction = async ({
 };
 
 module.exports = logAction;
+module.exports.logAction = logAction;

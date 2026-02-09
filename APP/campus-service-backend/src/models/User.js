@@ -23,8 +23,8 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["student", "staff", "admin"],
-      default: "student",
+      enum: ["tenant", "technician", "manager", "admin"],
+      default: "tenant",
     },
 
     department: {
@@ -59,8 +59,5 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-// index for fast login lookup
-userSchema.index({ email: 1 });
 
 module.exports = mongoose.model("User", userSchema);

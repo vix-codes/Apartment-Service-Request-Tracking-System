@@ -1,21 +1,12 @@
 const User = require("../models/User");
 const Request = require("../models/Request");
 const bcrypt = require("bcryptjs");
-const { logAction } = require("../utils/actionLogger");
+const logAction = require("../utils/actionLogger");
 
-// 🟢 ADMIN CREATE USER (staff/student/admin)
+// 🟢 ADMIN CREATE USER (tenant/technician/manager)
 exports.createUserByAdmin = async (req, res) => {
   try {
     if (req.user.role !== "admin") {
-      await logAction({
-        userId: req.user.id,
-        userName: req.user.name,
-        userRole: req.user.role,
-        action: "CREATE_USER",
-        resourceType: "user",
-        details: "Unauthorized attempt to create user",
-        status: "failure",
-      });
       return res.status(403).json({ message: "Admin only" });
     }
 
@@ -25,7 +16,11 @@ exports.createUserByAdmin = async (req, res) => {
       return res.status(400).json({ message: "All fields required" });
     }
 
-    // basic email normalization
+    const allowedRoles = ["tenant", "technician", "manager"];
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
     const normalizedEmail = email.trim().toLowerCase();
 
     const exists = await User.findOne({ email: normalizedEmail });
@@ -42,16 +37,11 @@ exports.createUserByAdmin = async (req, res) => {
       role,
     });
 
-    // Log successful action
     await logAction({
-      userId: req.user.id,
-      userName: req.user.name,
-      userRole: req.user.role,
-      action: "CREATE_USER",
-      resourceType: "user",
-      resourceId: user._id.toString(),
-      details: `Created new ${role} user: ${name} (${normalizedEmail})`,
-      status: "success",
+      action: "USER_CREATED",
+      performedBy: req.user.id,
+      performedByRole: req.user.role,
+      note: `Created ${role}: ${name} (${normalizedEmail})`,
     });
 
     // return safe user object (no password)
@@ -93,14 +83,14 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-// 🟢 GET ALL STAFF (for dropdown) - returns minimal fields
+// 🟢 GET ALL TECHNICIANS (for dropdown) - returns minimal fields
 exports.getAllStaff = async (req, res) => {
   try {
     if (req.user.role !== "admin") {
       return res.status(403).json({ message: "Admin only" });
     }
 
-    const staff = await User.find({ role: "staff" }).select("name email").lean();
+    const staff = await User.find({ role: "technician" }).select("name email").lean();
 
     return res.status(200).json({
       success: true,
@@ -121,27 +111,27 @@ exports.getAdminStats = async (req, res) => {
 
     const totalUsers = await User.countDocuments();
     const totalRequests = await Request.countDocuments();
-    const open = await Request.countDocuments({ status: "Open" });
-    const progress = await Request.countDocuments({ status: "In Progress" });
-    const closed = await Request.countDocuments({ status: "Closed" });
+    const open = await Request.countDocuments({ status: "NEW" });
+    const progress = await Request.countDocuments({ status: "IN_PROGRESS" });
+    const closed = await Request.countDocuments({ status: "CLOSED" });
 
     // Average resolution time (ms) for closed requests
     const avgResAgg = await Request.aggregate([
-      { $match: { status: "Closed", closedAt: { $ne: null } } },
+      { $match: { status: "CLOSED", closedAt: { $ne: null } } },
       { $project: { diff: { $subtract: ["$closedAt", "$createdAt"] } } },
       { $group: { _id: null, avgResolutionMs: { $avg: "$diff" } } },
     ]);
 
     const avgResolutionMs = avgResAgg[0]?.avgResolutionMs || 0;
 
-    // Staff performance: count handled & avg resolution per staff (closedBy)
+    // Technician performance: count handled & avg resolution per technician (completedBy)
     const staffPerf = await Request.aggregate([
-      { $match: { status: "Closed", closedBy: { $ne: null } } },
+      { $match: { status: "COMPLETED", completedBy: { $ne: null } } },
       {
         $group: {
-          _id: "$closedBy",
+          _id: "$completedBy",
           handledCount: { $sum: 1 },
-          avgResolutionMs: { $avg: { $subtract: ["$closedAt", "$createdAt"] } },
+          avgResolutionMs: { $avg: { $subtract: ["$completedAt", "$createdAt"] } },
         },
       },
       {

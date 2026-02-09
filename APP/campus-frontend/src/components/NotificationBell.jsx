@@ -4,6 +4,13 @@ import API from "../services/api";
 function NotificationBell() {
   const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
+  const typeLabels = {
+    COMPLAINT_ASSIGNED: "Assigned",
+    COMPLAINT_COMPLETED: "Completed",
+    COMPLAINT_CLOSED: "Closed",
+    COMPLAINT_REJECTED: "Rejected",
+    COMPLAINT_CREATED: "Created",
+  };
 
   const fetchNotifications = async () => {
     try {
@@ -62,13 +69,16 @@ function NotificationBell() {
             >
               <div className="notification__item-header">
                 <div className="notification__type">
-                  {n.type?.toUpperCase() || "INFO"}
+                  {typeLabels[n.type] || n.type?.replaceAll("_", " ") || "Info"}
                 </div>
                 <div className="notification__time">
                   {new Date(n.createdAt).toLocaleString()}
                 </div>
               </div>
-              <div className="notification__message">{n.message}</div>
+              <div className="notification__message">
+                {n.message}
+                {n.relatedToken ? ` (${n.relatedToken})` : ""}
+              </div>
               <div className="notification__actions">
                 {!n.isRead && (
                   <button

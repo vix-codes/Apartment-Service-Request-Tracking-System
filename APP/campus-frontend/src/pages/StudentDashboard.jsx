@@ -109,7 +109,7 @@ function StudentDashboard() {
           </label>
 
           <button className="button button--primary" type="submit">
-            Submit Request
+            Submit Complaint
           </button>
         </form>
       </div>

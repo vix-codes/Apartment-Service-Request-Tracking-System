@@ -79,11 +79,11 @@ function AdminDashboard() {
   const deleteReq = async (id) => {
     try {
       await API.delete(`/requests/${id}`);
-      setNotice({ tone: "success", message: "Request deleted." });
+      setNotice({ tone: "success", message: "Complaint deleted." });
       fetchRequests();
     } catch (err) {
       console.log(err);
-      setNotice({ tone: "error", message: "Unable to delete request." });
+      setNotice({ tone: "error", message: "Unable to delete complaint." });
     }
   };
 

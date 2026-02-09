@@ -62,7 +62,7 @@ function StaffDashboard() {
       setNotice({ tone: "success", message: "Complaint rejected." });
       fetchRequests();
     } catch {
-      setNotice({ tone: "error", message: "Unable to reject request." });
+      setNotice({ tone: "error", message: "Unable to reject complaint." });
     }
   };
 
@@ -147,7 +147,7 @@ function StaffDashboard() {
                 </>
               )}
 
-              {req.status === "COMPLETED" && <span className="status status--closed">Completed *</span>}
+              {req.status === "COMPLETED" && <span className="status status--completed">Completed *</span>}
             </div>
           </div>
         ))}

@@ -1,0 +1,13 @@
+{
+  "name": "campus-service-request-tracking-system",
+  "private": true,
+  "description": "Repo root wrapper so Railway/Railpack can detect a Node app from the repository root.",
+  "engines": {
+    "node": "18.x"
+  },
+  "scripts": {
+    "postinstall": "npm ci --prefix campus-service-backend --omit=dev",
+    "start": "npm --prefix campus-service-backend start"
+  }
+}
+

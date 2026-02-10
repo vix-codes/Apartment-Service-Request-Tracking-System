@@ -10,7 +10,7 @@ services:
 
   backend:
     build:
-      context: ./APP/campus-service-backend
+      context: ./campus-service-backend
     restart: unless-stopped
     environment:
       - MONGO_URI=mongodb://mongo:27017/campusdb
@@ -22,10 +22,11 @@ services:
 
   frontend:
     build:
-      context: ./APP/campus-frontend
+      context: ./campus-frontend
     restart: unless-stopped
     ports:
-      - '5173:5173'
+      # Frontend image serves via nginx on port 80; keep host port 5173 for convenience.
+      - '5173:80'
     depends_on:
       - backend
 

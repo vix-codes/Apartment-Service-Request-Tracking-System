@@ -14,19 +14,39 @@ const app = express();
 
 
 // 🟢 MIDDLEWARES
+const normalizeOrigin = (value) => {
+  if (!value) return "";
+  let v = String(value).trim().replace(/\/+$/, "");
+  if (!v) return "";
+
+  // Support config like `csrts.vercel.app` by assuming https://
+  if (!/^https?:\/\//i.test(v)) v = `https://${v}`;
+
+  try {
+    return new URL(v).origin;
+  } catch {
+    return "";
+  }
+};
+
 const allowedOrigins = (process.env.CORS_ORIGINS || "")
   .split(",")
-  .map((origin) => origin.trim())
+  .map(normalizeOrigin)
   .filter(Boolean);
+
+const allowAllOrigins = allowedOrigins.length === 0 || allowedOrigins.includes("*");
 
 app.use(
   cors({
     origin: (origin, cb) => {
       if (!origin) return cb(null, true);
-      if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
-        return cb(null, true);
-      }
-      return cb(new Error("CORS not allowed"));
+
+      const normalized = normalizeOrigin(origin) || origin;
+      if (allowAllOrigins || allowedOrigins.includes(normalized)) return cb(null, true);
+
+      // Do not throw: returning an error here becomes a 500. Returning `false`
+      // just omits CORS headers and the browser blocks the request.
+      return cb(null, false);
     },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],

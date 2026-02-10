@@ -8,5 +8,8 @@
   "scripts": {
     "postinstall": "npm install --prefix campus-service-backend --omit=dev",
     "start": "npm --prefix campus-service-backend start"
+  },
+  "devDependencies": {
+    "eslint-plugin-react": "^7.37.5"
   }
 }

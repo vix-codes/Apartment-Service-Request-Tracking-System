@@ -63,7 +63,7 @@ const Register = () => {
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
           />
-          <button type="submit" className="button" disabled={loading}>
+          <button type="submit" className="button button--primary" disabled={loading}>
             {loading ? "Registering..." : "Register"}
           </button>
         </form>

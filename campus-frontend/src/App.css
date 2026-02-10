@@ -8,6 +8,58 @@
   min-height: 100vh;
 }
 
+.login-container {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 36px 16px;
+}
+
+.login-card {
+  width: min(440px, 100%);
+  animation: card-in 300ms ease-out both;
+  backdrop-filter: blur(10px);
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-card h1 {
+  margin-top: 10px;
+  font-size: 2.2rem;
+  line-height: 1.08;
+}
+
+.login-card form {
+  margin-top: var(--spacing-lg);
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.login-card input,
+.login-card select,
+.login-card textarea {
+  width: 100%;
+}
+
+.login-card p {
+  margin-top: var(--spacing-md);
+  color: var(--secondary-text);
+}
+
+.login-card a {
+  color: var(--primary-accent);
+  font-weight: var(--font-weight-bold);
+}
+
 .page {
   padding: 32px;
   max-width: 1200px;
@@ -147,6 +199,15 @@ select {
   border-radius: var(--border-radius);
 }
 
+input:focus,
+textarea:focus,
+select:focus,
+.input:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--primary-accent-light);
+  border-color: var(--primary-accent-border);
+}
+
 textarea {
   min-height: 120px;
   resize: vertical;
@@ -166,7 +227,7 @@ textarea {
 
 .button--primary {
   background: var(--primary-accent);
-  color: var(--primary-text);
+  color: var(--on-accent);
 }
 
 .button--ghost {
@@ -191,7 +252,7 @@ textarea {
 }
 
 .muted {
-  color: rgba(245, 243, 238, 0.65);
+  color: var(--secondary-text);
 }
 
 .status {
@@ -376,4 +437,88 @@ textarea {
 
 .notification__actions {
   margin-top: var(--spacing-sm);
+}
+
+/* Tenant/Technician layout */
+.app-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 900px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+    padding: var(--spacing-lg);
+  }
+}
+
+.sidebar {
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  background: var(--secondary-bg);
+  padding: var(--spacing-lg);
+  backdrop-filter: blur(10px);
+}
+
+.sidebar__logo {
+  margin-bottom: var(--spacing-lg);
+}
+
+.sidebar__nav ul {
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar__nav li {
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: var(--secondary-text);
+  border: 1px solid transparent;
+}
+
+.sidebar__nav li.active {
+  color: var(--primary-text);
+  background: var(--primary-accent-light);
+  border-color: var(--primary-accent-border);
+}
+
+.main-content {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.top-bar {
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  background: var(--secondary-bg);
+  padding: var(--spacing-md) var(--spacing-lg);
+  display: grid;
+  grid-template-columns: 1fr minmax(160px, 320px) auto;
+  gap: var(--spacing-md);
+  align-items: center;
+  backdrop-filter: blur(10px);
+}
+
+@media (max-width: 900px) {
+  .top-bar {
+    grid-template-columns: 1fr;
+  }
+}
+
+.top-bar input[type="search"] {
+  width: 100%;
+}
+
+.top-bar__actions {
+  display: inline-flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--spacing-sm);
 }

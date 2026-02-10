@@ -47,6 +47,21 @@
   letter-spacing: 0.02em;
 }
 
+.app-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-brand__icon {
+  flex: 0 0 auto;
+}
+
+.app-brand__text {
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+}
+
 .card {
   background: var(--secondary-bg);
   border: 1px solid var(--border-color);

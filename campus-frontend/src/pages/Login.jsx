@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import API from "../services/api";
+import AppBrand from "../components/AppBrand";
 
 const Login = () => {
   const { login } = useAuth();
@@ -42,6 +43,9 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-card card">
+        <div style={{ marginBottom: "10px" }}>
+          <AppBrand size="lg" label="ASRT System" />
+        </div>
         <h1>Login</h1>
         <form onSubmit={handleLogin}>
           <input

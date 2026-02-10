@@ -4,6 +4,7 @@ import useFetch from "../hooks/useFetch";
 import NoticeBanner from "../components/NoticeBanner";
 import NotificationBell from "../components/NotificationBell";
 import TechnicianComplaintCard from "../components/TechnicianComplaintCard";
+import AppBrand from "../components/AppBrand";
 
 const TechnicianDashboard = () => {
   const { userName, logout } = useAuth();
@@ -20,7 +21,9 @@ const TechnicianDashboard = () => {
   return (
     <div className={`app-layout ${isDarkMode ? "dark" : ""}`}>
       <aside className="sidebar">
-        <div className="sidebar__logo">Campus Service</div>
+        <div className="sidebar__logo">
+          <AppBrand size="sm" label="ASRT" />
+        </div>
         <nav className="sidebar__nav">
           <ul>
             <li className="active">Dashboard</li>

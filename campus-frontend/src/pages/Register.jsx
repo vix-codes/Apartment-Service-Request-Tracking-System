@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import API from "../services/api";
+import AppBrand from "../components/AppBrand";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -38,6 +39,9 @@ const Register = () => {
   return (
     <div className="login-container">
       <div className="login-card card">
+        <div style={{ marginBottom: "10px" }}>
+          <AppBrand size="lg" label="ASRT System" />
+        </div>
         <h1>Register</h1>
         <form onSubmit={handleRegister}>
           <input

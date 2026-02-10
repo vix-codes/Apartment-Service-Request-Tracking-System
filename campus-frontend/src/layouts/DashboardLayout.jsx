@@ -1,6 +1,7 @@
 
 import { useAuth } from "../contexts/AuthContext";
 import NotificationBell from "../components/NotificationBell";
+import AppBrand from "../components/AppBrand";
 
 const DashboardLayout = ({ children }) => {
   const { logout } = useAuth();
@@ -8,7 +9,9 @@ const DashboardLayout = ({ children }) => {
   return (
     <>
       <div className="topbar">
-        <div className="topbar__brand">Apartment Service</div>
+        <div className="topbar__brand">
+          <AppBrand size="md" label="ASRT System" />
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <NotificationBell />
           <button

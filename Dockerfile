@@ -6,7 +6,8 @@ FROM node:18-alpine
 WORKDIR /usr/src/app
 
 COPY campus-service-backend/package*.json ./
-RUN npm ci --only=production
+# The backend repo does not commit a lockfile, so `npm ci` fails on Railway.
+RUN npm install --omit=dev
 
 COPY campus-service-backend/ ./
 

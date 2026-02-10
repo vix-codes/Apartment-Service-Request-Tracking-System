@@ -6,8 +6,7 @@
     "node": "18.x"
   },
   "scripts": {
-    "postinstall": "npm ci --prefix campus-service-backend --omit=dev",
+    "postinstall": "npm install --prefix campus-service-backend --omit=dev",
     "start": "npm --prefix campus-service-backend start"
   }
 }
-

@@ -16,7 +16,7 @@ const API = axios.create({
   // without needing CORS or a baked-in API URL.
   baseURL:
     (normalizeBaseUrl(import.meta.env.VITE_API_URL) ||
-    (import.meta.env.DEV ? "http://localhost:5000" : "")) + "/api"
+    (import.meta.env.DEV ? "http://localhost:5000" : ""))
 });
 
 // attach token automatically

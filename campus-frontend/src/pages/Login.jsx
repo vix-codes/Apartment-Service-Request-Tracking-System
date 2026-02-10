@@ -1,41 +1,42 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
+import { useAuth } from "../contexts/AuthContext";
 import API from "../services/api";
 
-const Login = ({ setUser, setNotice }) => {
+const Login = () => {
+  const { login } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("admin@gmail.com");
+  const [password, setPassword] = useState("admin123");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError(null);
+    setLoading(true);
 
     try {
-      const response = await API.post("/users/login", {
+      const response = await API.post("/auth/login", {
         email,
         password,
       });
 
-      if (response.status === 200) {
-        setUser(response.data.user);
-
-        if (response.data.user.role === "tenant") {
-          navigate("/tenant/dashboard");
-        } else if (response.data.user.role === "technician") {
-          navigate("/technician/dashboard");
-        } else {
-          navigate("/");
-        }
+      if (response.status === 200 && response.data.token) {
+        login(response.data);
+        // The AppRouter will automatically redirect based on the role
       } else {
-        throw new Error();
+        setError(
+          response.data.message || "Login failed. Please check your credentials."
+        );
       }
-    } catch (error) {
-      setNotice({
-        message: error.response.data.message,
-        tone: "critical",
-      });
+    } catch (err) {
+      const message = err.response?.data?.message || err.message || "An unexpected error occurred.";
+      setError(message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,15 +50,24 @@ const Login = ({ setUser, setNotice }) => {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
           />
-          <button type="submit" className="button">Login</button>
+          <button type="submit" className="button" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
         </form>
+        {error && (
+          <div style={{ color: "red", marginTop: "10px" }}>
+            <strong>Error:</strong> {error}
+          </div>
+        )}
         <p>
           Don't have an account? <Link to="/register">Register</Link>
         </p>

@@ -1,26 +1,19 @@
-import { useState } from "react";
-
 import API from "../services/api";
 
-const TenantComplaintCard = ({ complaint, setNotice }) => {
-  const [isDeleting, setIsDeleting] = useState(false);
+const TenantComplaintCard = ({ complaint, setNotice, onUpdated }) => {
+  const canReopen = complaint.status === "REJECTED";
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
-
+  const handleReopen = async () => {
     try {
-      await API.delete(`/complaints/${complaint._id}`);
-
-      // Refresh the page
-      window.location.reload();
+      await API.put(`/complaints/status/${complaint._id}`, { status: "NEW" });
+      setNotice?.({ tone: "success", message: "Complaint reopened." });
+      onUpdated?.();
     } catch (error) {
-      setNotice({
-        message: error.response.data.message,
-        tone: "critical",
+      setNotice?.({
+        message: error.response?.data?.message || "Unable to reopen complaint.",
+        tone: "error",
       });
     }
-
-    setIsDeleting(false);
   };
 
   return (
@@ -29,8 +22,16 @@ const TenantComplaintCard = ({ complaint, setNotice }) => {
       <p>{complaint.description}</p>
       <p>Status: {complaint.status}</p>
       <p>Created at: {new Date(complaint.createdAt).toLocaleString()}</p>
-      <button onClick={handleDelete} disabled={isDeleting}>
-        {isDeleting ? "Deleting..." : "Delete"}
+      {complaint.token && <p>Token: {complaint.token}</p>}
+      {complaint.assignedTo?.name && <p>Assigned to: {complaint.assignedTo.name}</p>}
+      <button
+        className="button button--ghost"
+        type="button"
+        onClick={handleReopen}
+        disabled={!canReopen}
+        title={canReopen ? "Reopen complaint" : "Only rejected complaints can be reopened"}
+      >
+        Reopen
       </button>
     </div>
   );

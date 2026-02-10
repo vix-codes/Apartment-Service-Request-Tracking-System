@@ -1,10 +1,15 @@
 const ComplaintCard = ({
     complaint,
-    users,
+    technicians,
     onAssign,
     onPriorityChange,
+    onClose,
+    onReopen,
     onDelete,
   }) => {
+    const canClose = complaint.status === "COMPLETED";
+    const canReopen = complaint.status === "REJECTED" || complaint.status === "CLOSED";
+
     return (
       <div className="card">
         <div className="card__header">
@@ -47,7 +52,7 @@ const ComplaintCard = ({
             <option value="" disabled>
               Assign to
             </option>
-            {users?.map((user) => (
+            {(technicians || []).map((user) => (
               <option key={user._id} value={user._id}>
                 {user.name}
               </option>
@@ -65,14 +70,39 @@ const ComplaintCard = ({
             <option value="low">Low</option>
             <option value="medium">Medium</option>
             <option value="high">High</option>
+            <option value="critical">Critical</option>
           </select>
-  
-          <button
-            className="button button--danger"
-            onClick={() => onDelete(complaint._id)}
-          >
-            Delete
-          </button>
+
+          {onClose && (
+            <button
+              className="button button--primary"
+              onClick={() => onClose(complaint._id)}
+              disabled={!canClose}
+              title={canClose ? "Close complaint" : "Only completed complaints can be closed"}
+            >
+              Close
+            </button>
+          )}
+
+          {onReopen && (
+            <button
+              className="button button--ghost"
+              onClick={() => onReopen(complaint._id)}
+              disabled={!canReopen}
+              title={canReopen ? "Reopen complaint" : "Only rejected/closed complaints can be reopened"}
+            >
+              Reopen
+            </button>
+          )}
+
+          {onDelete && (
+            <button
+              className="button button--danger"
+              onClick={() => onDelete(complaint._id)}
+            >
+              Delete
+            </button>
+          )}
         </div>
       </div>
     );

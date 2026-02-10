@@ -3,36 +3,35 @@ import { Link, useNavigate } from "react-router-dom";
 
 import API from "../services/api";
 
-const Register = ({ setNotice }) => {
+const Register = () => {
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("tenant");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setError(null);
+    setLoading(true);
 
     try {
-      await API.post("/users/register", {
+      await API.post("/auth/register", {
         name,
         email,
         password,
-        role,
       });
-
-      setNotice({
-        message: "You have successfully registered. Please log in.",
-        tone: "positive",
-      });
-
       navigate("/login");
     } catch (error) {
-      setNotice({
-        message: error.response.data.message,
-        tone: "critical",
-      });
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Unable to register right now.";
+      setError(message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,13 +57,17 @@ const Register = ({ setNotice }) => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
           />
-          <select value={role} onChange={(e) => setRole(e.target.value)}>
-            <option value="tenant">Tenant</option>
-            <option value="technician">Technician</option>
-          </select>
-          <button type="submit" className="button">Register</button>
+          <button type="submit" className="button" disabled={loading}>
+            {loading ? "Registering..." : "Register"}
+          </button>
         </form>
+        {error && (
+          <div style={{ color: "red", marginTop: "10px" }}>
+            <strong>Error:</strong> {error}
+          </div>
+        )}
         <p>
           Already have an account? <Link to="/login">Login</Link>
         </p>

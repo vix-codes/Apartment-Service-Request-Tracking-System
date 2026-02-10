@@ -11,7 +11,7 @@ import TechnicianDashboard from "../pages/TechnicianDashboard";
 import DashboardLayout from "../layouts/DashboardLayout";
 
 // A component to protect routes that require authentication
-const PrivateRoute = ({ children, requiredRole }) => {
+const PrivateRoute = ({ children, requiredRoles }) => {
   const { token, role } = useAuth(); // Correctly use token and role
 
   if (!token) {
@@ -19,7 +19,7 @@ const PrivateRoute = ({ children, requiredRole }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (requiredRole && role !== requiredRole) {
+  if (requiredRoles && !requiredRoles.includes(role)) {
     // If a role is required and the user's role does not match, redirect to home.
     return <Navigate to="/" replace />;
   }
@@ -33,6 +33,8 @@ const AppRouter = () => {
   const getDashboardPath = () => {
     switch (role) {
       case "admin":
+        return "/admin-dashboard";
+      case "manager":
         return "/admin-dashboard";
       case "tenant":
         return "/tenant-dashboard";
@@ -62,15 +64,29 @@ const AppRouter = () => {
         {/* Private routes with dashboard layouts */}
         <Route
           path="/admin-dashboard"
-          element={<PrivateRoute requiredRole="admin"><DashboardLayout><AdminDashboard /></DashboardLayout></PrivateRoute>}
+          element={
+            <PrivateRoute requiredRoles={["admin", "manager"]}>
+              <DashboardLayout>
+                <AdminDashboard />
+              </DashboardLayout>
+            </PrivateRoute>
+          }
         />
         <Route
           path="/tenant-dashboard"
-          element={<PrivateRoute requiredRole="tenant"><DashboardLayout><TenantDashboard /></DashboardLayout></PrivateRoute>}
+          element={
+            <PrivateRoute requiredRoles={["tenant"]}>
+              <TenantDashboard />
+            </PrivateRoute>
+          }
         />
         <Route
           path="/technician-dashboard"
-          element={<PrivateRoute requiredRole="technician"><DashboardLayout><TechnicianDashboard /></DashboardLayout></PrivateRoute>}
+          element={
+            <PrivateRoute requiredRoles={["technician"]}>
+              <TechnicianDashboard />
+            </PrivateRoute>
+          }
         />
 
         {/* A catch-all route to redirect unknown paths */}

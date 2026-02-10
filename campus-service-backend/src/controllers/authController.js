@@ -3,6 +3,56 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 
+// 🟢 PUBLIC REGISTER (TENANT ONLY)
+exports.register = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Name, email, and password are required" });
+    }
+
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const normalizedName = String(name).trim();
+
+    if (!normalizedEmail) {
+      return res.status(400).json({ message: "Valid email is required" });
+    }
+    if (!normalizedName) {
+      return res.status(400).json({ message: "Valid name is required" });
+    }
+
+    const exists = await User.findOne({ email: normalizedEmail });
+    if (exists) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      name: normalizedName,
+      email: normalizedEmail,
+      password: hashed,
+      role: "tenant",
+      isActive: true,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Registered successfully. Please log in.",
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
 // 🟢 LOGIN
 exports.login = async (req, res) => {
   try {
@@ -13,15 +63,22 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "User not found" });
     }
 
+    if (user.isActive === false) {
+      return res.status(403).json({ message: "Account is disabled" });
+    }
+
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
       return res.status(400).json({ message: "Wrong password" });
     }
 
+    user.lastLogin = new Date();
+    await user.save();
+
     const token = jwt.sign(
       { id: user._id.toString(), role: user.role },
       process.env.JWT_SECRET || "secretkey",
-      { expiresIn: "1d" }
+      { expiresIn: process.env.JWT_EXPIRES || "1d" }
     );
 
     res.json({

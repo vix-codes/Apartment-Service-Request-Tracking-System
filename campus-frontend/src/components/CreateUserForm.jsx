@@ -11,7 +11,7 @@ const CreateUserForm = ({ onUserCreated, setNotice }) => {
     e.preventDefault();
 
     try {
-      await API.post("/auth/register", {
+      await API.post("/auth/create-user", {
         name,
         email,
         password,
@@ -69,9 +69,9 @@ const CreateUserForm = ({ onUserCreated, setNotice }) => {
       <label className="form__label">
         Role
         <select value={role} onChange={(e) => setRole(e.target.value)} required>
+          <option value="tenant">Tenant</option>
           <option value="technician">Technician</option>
           <option value="manager">Manager</option>
-          <option value="admin">Admin</option>
         </select>
       </label>
 

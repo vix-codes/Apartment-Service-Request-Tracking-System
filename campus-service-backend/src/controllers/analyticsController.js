@@ -3,8 +3,8 @@ const User = require("../models/User");
 
 const getAdminAnalytics = async (req, res) => {
   try {
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Admin only" });
+    if (!["admin", "manager"].includes(req.user.role)) {
+      return res.status(403).json({ message: "Admin/Manager only" });
     }
 
     const totalComplaints = await Complaint.countDocuments();

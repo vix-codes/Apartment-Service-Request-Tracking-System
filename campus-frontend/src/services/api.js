@@ -11,12 +11,23 @@ const normalizeBaseUrl = (value) => {
   return v;
 };
 
+const withApiPrefix = (base) => {
+  if (!base) return "";
+  const v = String(base).trim().replace(/\/+$/, "");
+  if (!v) return "";
+  return /\/api$/i.test(v) ? v : `${v}/api`;
+};
+
 const API = axios.create({
-  // In production, prefer same-origin requests so Vercel rewrites can proxy to the backend
-  // without needing CORS or a baked-in API URL.
-  baseURL:
-    (normalizeBaseUrl(import.meta.env.VITE_API_URL) ||
-    (import.meta.env.DEV ? "http://localhost:5000" : ""))
+  // Default all requests to the backend's `/api` prefix.
+  // Local dev: http://localhost:5000/api
+  // Prod: set `VITE_API_URL` to your Railway backend origin, or rely on same-origin `/api` proxy.
+  baseURL: (() => {
+    const envBase = normalizeBaseUrl(import.meta.env.VITE_API_URL);
+    if (envBase) return withApiPrefix(envBase);
+    if (import.meta.env.DEV) return "http://localhost:5000/api";
+    return "/api";
+  })(),
 });
 
 // attach token automatically

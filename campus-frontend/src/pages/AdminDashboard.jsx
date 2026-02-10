@@ -21,7 +21,7 @@ function AdminDashboard() {
     data: analytics,
     loading: analyticsLoading,
     refetch: fetchAnalytics,
-  } = useFetch("/api/admin/analytics");
+  } = useFetch("/admin/analytics");
 
   const handleApiCall = async (apiCall, successMessage, errorMessage) => {
     try {
@@ -70,6 +70,15 @@ function AdminDashboard() {
     );
   };
 
+  const updatePriority = (id, priority) => {
+    if (!priority) return;
+    handleApiCall(
+      () => API.put(`/complaints/priority/${id}`, { priority }),
+      "Priority updated.",
+      "Unable to update priority."
+    );
+  };
+
   return (
     <div className="page">
       <div className="page__header">
@@ -87,7 +96,6 @@ function AdminDashboard() {
 
       {(role === "admin" || role === "manager") && (
         <Analytics
-          role={role}
           analytics={analytics}
           loading={analyticsLoading}
           onRefresh={fetchAnalytics}
@@ -124,9 +132,10 @@ function AdminDashboard() {
               complaint={complaint}
               technicians={technicians || []}
               onAssign={assignComplaint}
+              onPriorityChange={updatePriority}
               onClose={closeComplaint}
               onReopen={reopenComplaint}
-              onDelete={deleteComplaint}
+              onDelete={role === "admin" ? deleteComplaint : undefined}
             />
           ))}
         </div>

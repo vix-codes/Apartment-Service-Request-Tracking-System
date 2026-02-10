@@ -13,12 +13,19 @@ const normalizeOrigin = (value) => {
   }
 };
 
-const allowedOrigins = (process.env.CORS_ORIGINS || "")
+const defaultOrigins = [
+    'https://csrts.vercel.app', // Production frontend
+    'http://localhost:5173'    // Default local frontend
+];
+
+const envOrigins = (process.env.CORS_ORIGINS || "")
   .split(",")
   .map(normalizeOrigin)
   .filter(Boolean);
 
-const allowAllOrigins = allowedOrigins.length === 0 || allowedOrigins.includes("*");
+const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
+
+const allowAllOrigins = allowedOrigins.includes("*");
 
 const corsConfig = {
   origin: (origin, cb) => {

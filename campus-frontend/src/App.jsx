@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import API from "./services/api";
 
-import Notice from "./components/Notice";
+import Notice from "./components/NoticeBanner";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";

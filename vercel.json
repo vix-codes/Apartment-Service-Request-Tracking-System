@@ -4,6 +4,30 @@
   "buildCommand": "npm run build --prefix campus-frontend",
   "outputDirectory": "campus-frontend/dist",
   "rewrites": [
+    {
+      "source": "/health",
+      "destination": "https://campus-service-request-tracking-system-production.up.railway.app/health"
+    },
+    {
+      "source": "/auth/(.*)",
+      "destination": "https://campus-service-request-tracking-system-production.up.railway.app/auth/$1"
+    },
+    {
+      "source": "/complaints/(.*)",
+      "destination": "https://campus-service-request-tracking-system-production.up.railway.app/complaints/$1"
+    },
+    {
+      "source": "/audit/(.*)",
+      "destination": "https://campus-service-request-tracking-system-production.up.railway.app/audit/$1"
+    },
+    {
+      "source": "/notifications/(.*)",
+      "destination": "https://campus-service-request-tracking-system-production.up.railway.app/notifications/$1"
+    },
+    {
+      "source": "/api/admin/(.*)",
+      "destination": "https://campus-service-request-tracking-system-production.up.railway.app/api/admin/$1"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

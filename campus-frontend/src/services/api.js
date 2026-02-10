@@ -11,7 +11,11 @@ const normalizeBaseUrl = (value) => {
 };
 
 const API = axios.create({
-  baseURL: normalizeBaseUrl(import.meta.env.VITE_API_URL) || "http://localhost:5000",
+  // In production, prefer same-origin requests so Vercel rewrites can proxy to the backend
+  // without needing CORS or a baked-in API URL.
+  baseURL:
+    normalizeBaseUrl(import.meta.env.VITE_API_URL) ||
+    (import.meta.env.DEV ? "http://localhost:5000" : ""),
 });
 
 // attach token automatically

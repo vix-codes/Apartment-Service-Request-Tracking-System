@@ -1,29 +1,32 @@
-URL Shortener Service
+# URL Shortener Service
 
 A scalable service that converts long URLs into short, shareable links similar to Bitly or TinyURL.
 
-Example
+Example:
 
+```
 https://google.com/search?q=ai
 ↓
 vix.ly/aZ91K
-Features
+```
 
-Short URL generation
+---
 
-Fast redirection
+# Features
 
-Custom aliases
+* Short URL generation
+* Fast redirection
+* Custom aliases
+* URL expiration
+* Click analytics
+* Duplicate URL prevention
+* Rate limiting support
 
-URL expiration
+---
 
-Click analytics
+# System Architecture
 
-Duplicate URL prevention
-
-Rate limiting support
-
-System Architecture
+```
 Client
   ↓
 Load Balancer
@@ -33,159 +36,211 @@ API Server (Spring Boot)
 Cache Layer (Redis)
   ↓
 Database (PostgreSQL)
-Request Flow
-URL Shortening
+```
 
-User submits long URL
+---
 
-Server generates a unique short ID
+# Request Flow
 
-Mapping stored in database
+## URL Shortening
 
-Short URL returned to user
+1. User submits long URL
+2. Server generates a unique short ID
+3. Mapping stored in database
+4. Short URL returned to user
 
+```
 User → API → DB → Response
-URL Redirect
+```
 
-User accesses short URL
+---
 
-Server checks Redis cache
+## URL Redirect
 
-If found → redirect
+1. User accesses short URL
+2. Server checks Redis cache
+3. If found → redirect
+4. Otherwise fetch from database
+5. Cache result and redirect
 
-Otherwise fetch from database
-
-Cache result and redirect
-
+```
 User → API → Redis → DB → Redirect
-Tech Stack
-Backend
+```
 
-Java
+---
 
-Spring Boot
+# Tech Stack
 
-Database
+## Backend
 
-PostgreSQL
+* Java
+* Spring Boot
 
-Cache
+## Database
 
-Redis
+* PostgreSQL
 
-Deployment
+## Cache
 
-Docker
+* Redis
 
-AWS
+## Deployment
 
-API Endpoints
-Create Short URL
+* Docker
+* AWS
+
+---
+
+# API Endpoints
+
+## Create Short URL
+
+```
 POST /shorten
+```
 
 Request
 
+```json
 {
   "url": "https://google.com/search?q=ai"
 }
+```
 
 Response
 
+```json
 {
   "shortUrl": "vix.ly/aZ91K"
 }
-Redirect
+```
+
+---
+
+## Redirect
+
+```
 GET /{shortCode}
+```
 
 Example
 
+```
 GET vix.ly/aZ91K
+```
 
 Response
 
+```
 302 Redirect → https://google.com/search?q=ai
-Create Custom Alias
+```
+
+---
+
+## Create Custom Alias
+
+```
 POST /shorten
+```
 
 Request
 
+```json
 {
   "url": "https://google.com",
   "alias": "google"
 }
+```
 
 Response
 
+```
 vix.ly/google
-Database Schema
-urls
-Column	Type	Description
-id	BIGINT	Primary key
-short_code	VARCHAR	Unique short ID
-long_url	TEXT	Original URL
-created_at	TIMESTAMP	Creation time
-expires_at	TIMESTAMP	Expiration time
-click_count	BIGINT	Number of clicks
+```
+
+---
+
+# Database Schema
+
+## urls
+
+| Column      | Type      | Description      |
+| ----------- | --------- | ---------------- |
+| id          | BIGINT    | Primary key      |
+| short_code  | VARCHAR   | Unique short ID  |
+| long_url    | TEXT      | Original URL     |
+| created_at  | TIMESTAMP | Creation time    |
+| expires_at  | TIMESTAMP | Expiration time  |
+| click_count | BIGINT    | Number of clicks |
 
 Index
 
+```
 INDEX(short_code)
-Short URL Generation
+```
+
+---
+
+# Short URL Generation
 
 Short IDs are generated using Base62 encoding.
 
 Character set
 
+```
 a-z
 A-Z
 0-9
+```
 
 Example
 
+```
 125 → cb
 124351 → aZ91K
+```
 
-This ensures:
+Benefits
 
-compact URLs
+* Compact URLs
+* High uniqueness
+* Human-readable links
 
-high uniqueness
+---
 
-human-readable links
-
-Caching Strategy
+# Caching Strategy
 
 Redis stores frequently accessed links.
 
 Example
 
+```
 Key: short_code
 Value: long_url
+```
 
 Benefits
 
-reduces database load
+* Reduces database load
+* Faster redirects
+* Improves scalability
 
-faster redirects
+---
 
-improves scalability
-
-Analytics
+# Analytics
 
 Click events tracked for each redirect.
 
 Metrics include
 
-total clicks
-
-device type
-
-location
-
-timestamp
+* Total clicks
+* Device type
+* Location
+* Timestamp
 
 Analytics pipeline
 
+```
 Redirect Service
      ↓
 Event Queue
@@ -193,55 +248,69 @@ Event Queue
 Analytics Worker
      ↓
 Analytics Database
-Scaling Strategy
-Horizontal Scaling
+```
+
+---
+
+# Scaling Strategy
+
+## Horizontal Scaling
 
 Multiple API servers behind a load balancer.
 
-Database Scaling
+## Database Scaling
 
-read replicas
+* Read replicas
+* Indexing
 
-indexing
-
-CDN
+## CDN
 
 Global caching for redirect endpoints.
 
-Security
+---
 
-URL validation
+# Security
 
-malicious URL filtering
+* URL validation
+* Malicious URL filtering
+* Rate limiting
+* HTTPS support
 
-rate limiting
+---
 
-HTTPS support
+# Deployment
 
-Deployment
+Run using Docker
 
-Run with Docker.
-
+```
 docker build -t url-shortener .
 docker run -p 8080:8080 url-shortener
-Future Improvements
+```
 
-QR code generation
+---
 
-link preview
+# Future Improvements
 
-analytics dashboard
+* QR code generation
+* Link preview
+* Analytics dashboard
+* Geo-based routing
+* Custom domains
 
-geo-based routing
+---
 
-custom domains
+# Example
 
-Example
+```
 Input
 https://google.com/search?q=ai
 
 Output
 vix.ly/aZ91K
-License
+```
+
+---
+
+# License
 
 MIT License

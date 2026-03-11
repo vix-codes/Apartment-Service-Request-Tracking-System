@@ -31,15 +31,20 @@ const API = axios.create({
   })(),
 });
 
-// attach token automatically
-API.interceptors.request.use((req) => {
-  const token = localStorage.getItem("token");
-
-  if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.message === "Network Error") {
+      console.error(
+        "NETWORK ERROR DIAGNOSTICS:",
+        "\nRequested URL:", error.config?.url,
+        "\nFull Config:", error.config,
+        "\nIs this a cross-origin request?", !error.config?.url?.startsWith("/api"),
+        "\nNote: If you see this in Vercel, check the 'Functions' tab for proxy errors."
+      );
+    }
+    return Promise.reject(error);
   }
-
-  return req;
-});
+);
 
 export default API;

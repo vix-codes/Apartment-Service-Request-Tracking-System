@@ -30,6 +30,11 @@ const defaultOrigins = [
   "http://localhost:5173", // Default local frontend
 ];
 
+// Default allow common deployment suffixes to reduce "Network Error" friction
+const defaultSuffixes = [
+  ".vercel.app",
+];
+
 const rawParts = (process.env.CORS_ORIGINS || "")
   .split(",")
   .map((s) => String(s || "").trim())
@@ -37,7 +42,7 @@ const rawParts = (process.env.CORS_ORIGINS || "")
 
 let allowAllOrigins = false;
 const exactOrigins = new Set(defaultOrigins.map(normalizeOrigin).filter(Boolean));
-const allowedSuffixes = [];
+const allowedSuffixes = [...defaultSuffixes];
 
 for (const part of rawParts) {
   const suffix = normalizeWildcardSuffix(part);

@@ -6,7 +6,16 @@ export default async function handler(req, res) {
     process.env.API_URL ||
     "";
 
-  if (!origin) {
+  const normalizeOrigin = (o) => {
+    if (!o) return "";
+    let v = String(o).trim().replace(/\/+$/, "");
+    if (!v) return "";
+    return /^https?:\/\//i.test(v) ? v : `https://${v}`;
+  };
+
+  const finalOrigin = normalizeOrigin(origin);
+
+  if (!finalOrigin) {
     res.statusCode = 500;
     res.setHeader("content-type", "application/json");
     res.end(
@@ -19,7 +28,7 @@ export default async function handler(req, res) {
   }
 
   const pathParts = Array.isArray(req.query?.path) ? req.query.path : [];
-  const target = new URL(origin.replace(/\/+$/, "") + "/api/" + pathParts.join("/"));
+  const target = new URL(finalOrigin + "/api/" + pathParts.join("/"));
 
   const qIndex = req.url.indexOf("?");
   if (qIndex !== -1) target.search = req.url.slice(qIndex);
@@ -50,23 +59,36 @@ export default async function handler(req, res) {
     }
   }
 
-  const upstream = await fetch(target, {
-    method,
-    headers,
-    body,
-    redirect: "manual",
-  });
+  try {
+    const upstream = await fetch(target, {
+      method,
+      headers,
+      body,
+      redirect: "manual",
+    });
 
-  res.statusCode = upstream.status;
-  res.setHeader("cache-control", "no-store");
+    res.statusCode = upstream.status;
+    res.setHeader("cache-control", "no-store");
 
-  upstream.headers.forEach((value, key) => {
-    const k = key.toLowerCase();
-    // Don't forward hop-by-hop headers.
-    if (k === "transfer-encoding" || k === "content-encoding" || k === "connection") return;
-    res.setHeader(key, value);
-  });
+    upstream.headers.forEach((value, key) => {
+      const k = key.toLowerCase();
+      // Don't forward hop-by-hop headers.
+      if (k === "transfer-encoding" || k === "content-encoding" || k === "connection") return;
+      res.setHeader(key, value);
+    });
 
-  const buf = Buffer.from(await upstream.arrayBuffer());
-  res.end(buf);
+    const buf = Buffer.from(await upstream.arrayBuffer());
+    res.end(buf);
+  } catch (error) {
+    console.error("Proxy error:", error);
+    res.statusCode = 502; // Bad Gateway
+    res.setHeader("content-type", "application/json");
+    res.end(
+      JSON.stringify({
+        message: "Proxy error connecting to backend.",
+        error: error.message,
+        target: target.toString(),
+      })
+    );
+  }
 }

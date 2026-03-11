@@ -1,43 +1,26 @@
 # Deployment Guide
 
-This project is configured for a split-deployment architecture:
-- **Backend**: Render (Spring Boot + PostgreSQL + Redis)
-- **Frontend**: Vercel (Static HTML/JS)
+**Backend**: Railway (Spring Boot + PostgreSQL)  
+**Frontend**: Vercel (Static HTML/JS)
 
-## Phase 1: Deploy Backend to Render
+## Phase 1: Backend on Railway
 
-1.  Log in to [Render](https://dashboard.render.com/).
-2.  Click **New +** > **Blueprint**.
-3.  Connect your GitHub repository.
-4.  Render will automatically detect `render.yaml`.
-5.  Set the following **Environment Variables** (or use the Blueprint defaults):
-    - `SPRING_DATASOURCE_DRIVER_CLASS_NAME`: `org.postgresql.Driver`
-    - `SPRING_JPA_HIBERNATE_DDL_AUTO`: `update`
-    - `SPRING_CACHE_TYPE`: `redis`
-    - `ALLOWED_ORIGINS`: `*` (Change to your Vercel URL later for security)
-6.  Deploy the services.
-7.  **Note your Backend URL** (e.g., `https://url-shortener-xxxx.onrender.com`).
+Railway auto-detects your `Dockerfile`. Set these **Environment Variables** in Railway:
 
-## Phase 2: Update Frontend API URL
+| Variable | Value |
+| :--- | :--- |
+| `PORT` | `8080` |
+| `SPRING_DATASOURCE_URL` | `${{Postgres.DATABASE_URL}}` |
+| `SPRING_DATASOURCE_DRIVER_CLASS_NAME` | `org.postgresql.Driver` |
+| `SPRING_JPA_HIBERNATE_DDL_AUTO` | `update` |
+| `SPRING_CACHE_TYPE` | `simple` |
+| `APP_BASE_URL` | `https://url-shortener-production-d2f5.up.railway.app` |
+| `ALLOWED_ORIGINS` | `https://vixurlshort.vercel.app` |
 
-1.  Open `frontend/app.js`.
-2.  Update the `API_BASE_URL` constant with your actual Render URL:
-    ```javascript
-    const API_BASE_URL = 'https://your-app-name.onrender.com';
-    ```
+> Add a **PostgreSQL** plugin in Railway and link it to your service.
 
-## Phase 3: Deploy Frontend to Vercel
+## Phase 2: Frontend on Vercel
 
-1.  Log in to [Vercel](https://vercel.com/).
-2.  Click **Add New** > **Project**.
-3.  Import the same GitHub repository.
-4.  In the **Build and Output Settings**:
-    - **Root Directory**: Select `frontend` (Important!).
-5.  Deploy!
-
-## Architecture Details
-
-- **Spring Boot**: Handles logic, redirects, and analytics.
-- **PostgreSQL**: stores persistent URL mappings.
-- **Redis**: high-speed caching and rate limiting.
-- **CORS**: Enabled to allow Vercel frontend requests.
+1. Import the same GitHub repo on Vercel.
+2. Set **Root Directory** to `frontend`.
+3. Deploy!

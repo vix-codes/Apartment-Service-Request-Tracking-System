@@ -1,6 +1,6 @@
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
     ? 'http://localhost:8080' 
-    : 'https://url-shortener-production.up.railway.app'; // Replace with your Railway URL
+    : 'https://url-shortener-h3sh.onrender.com'; // User needs to update this after Render deployment
 
 const shortenBtn = document.getElementById('shortenBtn');
 const longUrlInput = document.getElementById('longUrl');

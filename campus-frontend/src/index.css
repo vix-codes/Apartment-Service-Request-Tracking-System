@@ -3,13 +3,17 @@
 
 :root {
   font-family: var(--font-family);
-  line-height: 1.5;
+  line-height: 1.6;
   font-weight: var(--font-weight-regular);
   color: var(--primary-text);
   background-color: var(--primary-bg);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 *,
@@ -22,11 +26,22 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: radial-gradient(1200px 700px at 15% 10%, rgba(34, 197, 94, 0.16), transparent 55%),
-    radial-gradient(900px 500px at 80% 20%, rgba(14, 165, 233, 0.18), transparent 55%),
-    radial-gradient(900px 600px at 70% 85%, rgba(245, 158, 11, 0.14), transparent 55%),
+  /* Dynamic, modern gradients - Indigo/Violet/Fuchsia mix */
+  background: radial-gradient(1000px 800px at 10% 0%, rgba(99, 102, 241, 0.15), transparent 60%),
+    radial-gradient(1200px 900px at 90% 20%, rgba(168, 85, 247, 0.12), transparent 50%),
+    radial-gradient(800px 600px at 40% 90%, rgba(236, 72, 153, 0.1), transparent 55%),
     var(--primary-bg);
+  background-attachment: fixed;
   color: var(--primary-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark {
+  background: radial-gradient(1000px 800px at 10% 0%, rgba(99, 102, 241, 0.08), transparent 60%),
+    radial-gradient(1200px 900px at 90% 20%, rgba(168, 85, 247, 0.06), transparent 50%),
+    radial-gradient(800px 600px at 40% 90%, rgba(236, 72, 153, 0.05), transparent 55%),
+    var(--primary-bg);
+  background-attachment: fixed;
 }
 
 img {
@@ -44,4 +59,9 @@ textarea {
 a {
   color: inherit;
   text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+a:hover {
+  opacity: 0.8;
 }

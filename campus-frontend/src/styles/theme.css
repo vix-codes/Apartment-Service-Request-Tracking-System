@@ -1,52 +1,58 @@
 /* Fonts (intentionally not default UI stacks) */
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Space+Grotesk:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap');
 
 :root {
   /* Typography */
-  --font-family: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-family-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-family-display: "Outfit", system-ui, sans-serif;
   --font-weight-regular: 400;
+  --font-weight-medium: 500;
   --font-weight-bold: 600;
 
   /* Spacing */
-  --spacing-xs: 6px;
-  --spacing-sm: 10px;
-  --spacing-md: 14px;
-  --spacing-lg: 18px;
-  --spacing-xl: 28px;
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
 
-  /* Radii */
-  --border-radius: 14px;
+  /* Radii for softer, premium UI */
+  --border-radius: 16px;
+  --border-radius-lg: 24px;
 
-  /* Color (Light) */
-  --primary-bg: #fbfaf7;
-  --secondary-bg: rgba(255, 255, 255, 0.72);
-  --primary-text: #151614;
-  --secondary-text: rgba(21, 22, 20, 0.62);
-  --border-color: rgba(21, 22, 20, 0.12);
+  /* Color (Light Mode - Vibrant Cool) */
+  --primary-bg: #f8fafc;
+  --secondary-bg: rgba(255, 255, 255, 0.75);
+  --primary-text: #0f172a;
+  --secondary-text: #64748b;
+  --border-color: rgba(15, 23, 42, 0.08);
 
-  --primary-accent: #1f8f4e;
-  --primary-accent-light: rgba(31, 143, 78, 0.12);
-  --primary-accent-border: rgba(31, 143, 78, 0.32);
-  --on-accent: #fbfaf7;
+  /* Primary Accent Colors (Vibrant Indigo) */
+  --primary-accent: #6366f1;
+  --primary-accent-light: rgba(99, 102, 241, 0.1);
+  --primary-accent-border: rgba(99, 102, 241, 0.25);
+  --primary-accent-hover: #4f46e5;
+  --on-accent: #ffffff;
 }
 
-/* Dark mode enabled by adding `.dark` on `body` (existing code does this). */
+/* Dark mode enabled by adding `.dark` on `body` (existing code). */
 body.dark {
-  --primary-bg: #0b0f0e;
-  --secondary-bg: rgba(19, 25, 23, 0.72);
-  --primary-text: rgba(245, 243, 238, 0.92);
-  --secondary-text: rgba(245, 243, 238, 0.62);
-  --border-color: rgba(245, 243, 238, 0.14);
+  --primary-bg: #09090b;
+  --secondary-bg: rgba(24, 24, 27, 0.65);
+  --primary-text: #f8fafc;
+  --secondary-text: #a1a1aa;
+  --border-color: rgba(255, 255, 255, 0.1);
 
-  --primary-accent: #22c55e;
-  --primary-accent-light: rgba(34, 197, 94, 0.16);
-  --primary-accent-border: rgba(34, 197, 94, 0.34);
-  --on-accent: #06130b;
+  /* Accent Colors Dark mode (Vibrant Violet/Indigo) */
+  --primary-accent: #818cf8;
+  --primary-accent-light: rgba(129, 140, 248, 0.15);
+  --primary-accent-border: rgba(129, 140, 248, 0.3);
+  --primary-accent-hover: #6366f1;
+  --on-accent: #0f172a;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-family-display);
-  letter-spacing: 0.01em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
-

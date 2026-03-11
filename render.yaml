@@ -37,7 +37,10 @@ services:
           name: url-shortener-redis
           property: port
       - key: APP_BASE_URL
-        value: https://url-shortener.onrender.com
+        fromService:
+          type: web
+          name: url-shortener
+          property: host
 
   - type: redis
     name: url-shortener-redis

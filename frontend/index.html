@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftLink | Premium URL Shortener</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <nav>
+        <div class="logo">Swift<span>Link</span></div>
+        <div class="nav-links">
+            <a href="#shorten">Shorten</a>
+            <a href="#analytics">Analytics</a>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <h1>Shorten Your Links with <span>Style</span></h1>
+            <p>Experience the most elegant and powerful URL shortener. Fast, secure, and built for modern creators.</p>
+            
+            <div class="card glass" id="shorten">
+                <div class="input-group">
+                    <input type="url" id="longUrl" placeholder="Paste your long URL here..." required>
+                    <button id="shortenBtn">Shorten Now</button>
+                </div>
+                <div id="result" class="result-container hidden">
+                    <div class="short-url-box">
+                        <span id="shortUrl"></span>
+                        <button id="copyBtn" class="secondary-btn">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="analytics-section" id="analytics">
+            <h2>Deep Analytics</h2>
+            <div class="card glass analytics-card">
+                <div class="input-group">
+                    <input type="text" id="analyticsCode" placeholder="Enter short code for stats...">
+                    <button id="checkAnalyticsBtn">Check Stats</button>
+                </div>
+                <div id="analyticsResult" class="analytics-grid hidden">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Clicks</span>
+                        <span id="clickCount" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Created At</span>
+                        <span id="createdAt" class="stat-value">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Expires At</span>
+                        <span id="expiresAt" class="stat-value">-</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 SwiftLink. Powered by <a href="https://render.com" target="_blank">Render</a> & <a href="https://vercel.com" target="_blank">Vercel</a>.</p>
+    </footer>
+
+    <div id="toast" class="toast hidden"></div>
+    
+    <script src="app.js"></script>
+</body>
+</html>

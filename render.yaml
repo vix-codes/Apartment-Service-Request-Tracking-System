@@ -41,6 +41,8 @@ services:
           type: web
           name: url-shortener
           property: host
+      - key: ALLOWED_ORIGINS
+        value: "*" # Update this to your Vercel URL after deployment
 
   - type: redis
     name: url-shortener-redis

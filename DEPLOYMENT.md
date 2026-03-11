@@ -13,7 +13,8 @@ This project is configured for a split-deployment architecture:
 5.  Set the following **Environment Variables** (or use the Blueprint defaults):
     - `SPRING_DATASOURCE_DRIVER_CLASS_NAME`: `org.postgresql.Driver`
     - `SPRING_JPA_HIBERNATE_DDL_AUTO`: `update`
-    - `ALLOWED_ORIGINS`: `*` (or your Vercel URL once deployed)
+    - `SPRING_CACHE_TYPE`: `redis`
+    - `ALLOWED_ORIGINS`: `*` (Change to your Vercel URL later for better security)
 6.  Deploy the services.
 7.  **Note your Backend URL** (e.g., `https://url-shortener-xxxx.onrender.com`).
 

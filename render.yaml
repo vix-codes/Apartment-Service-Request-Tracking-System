@@ -25,29 +25,11 @@ services:
       - key: SPRING_JPA_HIBERNATE_DDL_AUTO
         value: update
       - key: SPRING_CACHE_TYPE
-        value: redis
-      - key: SPRING_DATA_REDIS_HOST
-        fromService:
-          type: redis
-          name: url-shortener-redis
-          property: host
-      - key: SPRING_DATA_REDIS_PORT
-        fromService:
-          type: redis
-          name: url-shortener-redis
-          property: port
+        value: simple
       - key: APP_BASE_URL
-        fromService:
-          type: web
-          name: url-shortener
-          property: host
+        value: "https://url-shortener-iil9.onrender.com"
       - key: ALLOWED_ORIGINS
         value: "https://vixurlshort.vercel.app"
-
-  - type: redis
-    name: url-shortener-redis
-    plan: free
-    ipAllowList: []
 
 databases:
   - name: url-shortener-postgres

@@ -12,7 +12,7 @@ public class ShortUrl {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 32)
+    @Column(unique = true, length = 32)
     private String shortCode;
 
     @Column(nullable = false, columnDefinition = "TEXT")

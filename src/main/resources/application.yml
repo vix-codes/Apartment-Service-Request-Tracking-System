@@ -14,10 +14,6 @@ spring:
     open-in-view: false
   cache:
     type: ${SPRING_CACHE_TYPE:simple}
-  data:
-    redis:
-      host: ${SPRING_DATA_REDIS_HOST:localhost}
-      port: ${SPRING_DATA_REDIS_PORT:6379}
 
 app:
   base-url: ${APP_BASE_URL:http://localhost:8080}

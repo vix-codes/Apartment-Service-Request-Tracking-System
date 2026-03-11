@@ -19,12 +19,13 @@ const expiresAtSpan = document.getElementById('expiresAt');
 shortenBtn.addEventListener('click', async () => {
     const url = longUrlInput.value;
     if (!url) {
-        showToast('Please enter a valid URL');
+        showToast('Please enter a valid URL', 'error');
         return;
     }
 
+    const originalText = shortenBtn.innerText;
     shortenBtn.disabled = true;
-    shortenBtn.innerText = 'Creating...';
+    shortenBtn.innerHTML = '<div class="spinner-container"><div class="spinner"></div>Creating...</div>';
 
     try {
         const response = await fetch(`${API_BASE_URL}/shorten`, {
@@ -40,13 +41,13 @@ shortenBtn.addEventListener('click', async () => {
         const data = await response.json();
         shortUrlText.innerText = data.shortUrl;
         resultContainer.classList.remove('hidden');
-        showToast('Success! URL shortened.');
+        showToast('Success! URL shortened.', 'success');
     } catch (error) {
         console.error(error);
-        showToast('Error shortening URL. Is the backend running?');
+        showToast('Error shortening URL. Is the backend running?', 'error');
     } finally {
         shortenBtn.disabled = false;
-        shortenBtn.innerText = 'Shorten Now';
+        shortenBtn.innerText = originalText;
     }
 });
 
@@ -54,7 +55,7 @@ shortenBtn.addEventListener('click', async () => {
 checkAnalyticsBtn.addEventListener('click', async () => {
     const code = analyticsCodeInput.value.trim();
     if (!code) {
-        showToast('Please enter a short code');
+        showToast('Please enter a short code', 'error');
         return;
     }
 
@@ -71,8 +72,9 @@ checkAnalyticsBtn.addEventListener('click', async () => {
         expiresAtSpan.innerText = data.expiresAt ? new Date(data.expiresAt).toLocaleDateString() : 'Never';
         
         analyticsResult.classList.remove('hidden');
+        showToast('Analytics loaded.', 'success');
     } catch (error) {
-        showToast(error.message);
+        showToast(error.message, 'error');
     }
 });
 
@@ -80,16 +82,21 @@ checkAnalyticsBtn.addEventListener('click', async () => {
 copyBtn.addEventListener('click', () => {
     const text = shortUrlText.innerText;
     navigator.clipboard.writeText(text).then(() => {
-        showToast('Copied to clipboard!');
+        showToast('Copied to clipboard!', 'success');
     });
 });
 
 // Helper: Show Toast
-function showToast(message) {
+function showToast(message, type = 'info') {
     const toast = document.getElementById('toast');
     toast.innerText = message;
+    toast.className = `toast ${type}`;
     toast.classList.remove('hidden');
-    setTimeout(() => {
+    
+    // Clear previous timeout if any
+    if (window.toastTimeout) clearTimeout(window.toastTimeout);
+    
+    window.toastTimeout = setTimeout(() => {
         toast.classList.add('hidden');
     }, 3000);
 }

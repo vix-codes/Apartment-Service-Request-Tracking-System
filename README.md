@@ -62,3 +62,38 @@ docker compose up --build
 ```bash
 mvn test
 ```
+
+
+## Deploy on Render
+1. Push this repository to GitHub.
+2. In Render, create a new Blueprint and select this repo.
+3. Render will use `render.yaml` to provision:
+   - Web service (Docker)
+   - PostgreSQL database
+   - Redis instance
+4. Update `APP_BASE_URL` in Render if your service URL differs from the default placeholder.
+
+## Deploy on Vercel
+This repository includes `vercel.json` configured for Docker-based deployment using `@vercel/docker`.
+
+1. Import the repository in Vercel.
+2. Add environment variables in the Vercel project settings:
+   - `SPRING_DATASOURCE_URL`
+   - `SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver`
+   - `SPRING_DATASOURCE_USERNAME`
+   - `SPRING_DATASOURCE_PASSWORD`
+   - `SPRING_JPA_HIBERNATE_DDL_AUTO=update`
+   - `SPRING_CACHE_TYPE=redis`
+   - `SPRING_DATA_REDIS_HOST`
+   - `SPRING_DATA_REDIS_PORT`
+   - `APP_BASE_URL` (your Vercel domain)
+3. Deploy.
+
+## Runtime environment variables
+The app now supports deploy-friendly environment overrides:
+- `PORT`
+- `APP_BASE_URL`
+- `SPRING_DATASOURCE_*`
+- `SPRING_CACHE_TYPE`
+- `SPRING_DATA_REDIS_HOST`
+- `SPRING_DATA_REDIS_PORT`

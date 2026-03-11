@@ -42,7 +42,7 @@ services:
           name: url-shortener
           property: host
       - key: ALLOWED_ORIGINS
-        value: "https://vixurlshort.vercel.app/"
+        value: "https://vixurlshort.vercel.app"
 
   - type: redis
     name: url-shortener-redis

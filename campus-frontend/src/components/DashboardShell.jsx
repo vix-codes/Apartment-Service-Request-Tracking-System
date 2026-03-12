@@ -72,11 +72,11 @@ const DashboardShell = ({
           )}
 
           <div className="dashboard-topbar__actions">
-            <NotificationBell />
             <button type="button" className="button button--ghost button--small" onClick={logout}>
               <LogoutIcon />
               <span>Logout</span>
             </button>
+            <NotificationBell />
           </div>
         </header>
 

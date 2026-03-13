@@ -50,13 +50,22 @@ if (isDemoMode) {
 
     const fullUrlWithParams = url + (config.params ? "?" + new URLSearchParams(config.params).toString() : "");
     
-    // Match handler by URL or full URL with params
-    const handler = mockHandlers[url] || 
-                    mockHandlers[fullUrlWithParams] || 
-                    mockHandlers[url.split('?')[0]]; // Fallback to base URL
+    // Improved demo matching logic
+    const getHandler = () => {
+      // 1. Try exact match with params
+      if (mockHandlers[fullUrlWithParams]) return mockHandlers[fullUrlWithParams];
+      // 2. Try match with base path (no params)
+      const basePath = url.split('?')[0].replace(/\/$/, "");
+      if (mockHandlers[basePath]) return mockHandlers[basePath];
+      // 3. Try match with trailing slash
+      if (mockHandlers[`${basePath}/`]) return mockHandlers[`${basePath}/`];
+      return null;
+    };
+
+    const handler = getHandler();
     
     if (handler && config.method.toLowerCase() === "get") {
-      console.log(`[Demo Mode] Intercepting GET ${url}`);
+      console.log(`[Demo Mode] Intercepting GET ${fullUrlWithParams}`);
       config.adapter = async () => {
         return new Promise((resolve) => {
           setTimeout(() => resolve(handler()), 400); 

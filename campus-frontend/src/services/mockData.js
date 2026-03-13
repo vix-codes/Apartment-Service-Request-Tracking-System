@@ -133,7 +133,7 @@ export const handleMockAction = (config) => {
     if (complaint) {
       complaint.status = body.status;
       if (body.status === "REJECTED") {
-         complaint.rejectedReason = body.reason || "No reason provided";
+         complaint.rejectReason = body.reason || "No reason provided";
       }
       if (body.status === "COMPLETED") {
          complaint.resolutionNote = body.resolutionNote || "Fixed";

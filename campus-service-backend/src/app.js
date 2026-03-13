@@ -13,15 +13,33 @@ const adminRoutes = require("./routes/adminRoutes");
 const errorHandler = require("./middlewares/errorHandler");
 const requestLogger = require("./middlewares/requestLogger");
 const corsConfig = require("./config/corsConfig");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+const compression = require("compression");
+const mongoSanitize = require("express-mongo-sanitize");
+const sanitizeMiddleware = require("./middlewares/sanitizer");
 
 const app = express();
 
 // ----------------------------------------
 // Global Middlewares
 // ----------------------------------------
+app.use(helmet());
+app.use(compression());
 app.use(cors(corsConfig));
 app.options("*", cors(corsConfig)); // Pre-flight requests
+
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 300, // limit each IP to 300 reqs per window
+    message: { message: "Too many requests, please try again later." },
+  })
+);
+
 app.use(express.json({ limit: "10mb" }));
+app.use(mongoSanitize());
+app.use(sanitizeMiddleware);
 app.use(requestLogger);
 
 // ----------------------------------------

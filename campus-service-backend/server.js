@@ -8,6 +8,11 @@ const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
   try {
+    if (!process.env.JWT_SECRET && process.env.NODE_ENV !== "development") {
+      console.error("FATAL ERROR: JWT_SECRET is not defined in environment variables.");
+      process.exit(1);
+    }
+
     // Connect to the database
     await connectDB();
 

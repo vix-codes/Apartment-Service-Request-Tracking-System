@@ -38,11 +38,11 @@ const Analytics = ({ analytics, loading, onRefresh }) => {
   const technicians = analytics?.technicians;
 
   return (
-    <div className="analytics-dashboard">
-      <div className="analytics-dashboard__header">
-        <div className="analytics-dashboard__title-group">
-          <h2>Analytics Overview</h2>
-          <p className="secondary-text">Real-time performance metrics and status tracking</p>
+    <div className="analytics-container">
+      <header className="page__header">
+        <div>
+          <h2>Analytics Dashboard</h2>
+          <p className="muted">Real-time performance metrics and status tracking</p>
         </div>
         <IconButton
           onClick={onRefresh}
@@ -52,41 +52,15 @@ const Analytics = ({ analytics, loading, onRefresh }) => {
         >
           <RefreshIcon className={loading ? "spin" : ""} />
         </IconButton>
-      </div>
+      </header>
 
       <div className="analytics-grid">
-        {/* Status Metrics */}
+        {/* Primary Row: Status Overviews */}
         <MetricCard 
           title="Total Requests" 
           value={overview?.totalComplaints ?? "0"} 
           icon={InboxIcon}
           colorClass="metric-card--primary"
-        />
-        <MetricCard 
-          title="New" 
-          value={overview?.open ?? "0"} 
-          icon={AlertCircleIcon}
-          colorClass="metric-card--open"
-        />
-        <MetricCard 
-          title="In Progress" 
-          value={overview?.inProgress ?? "0"} 
-          icon={HammerIcon}
-          colorClass="metric-card--progress"
-        />
-        <MetricCard 
-          title="Completed" 
-          value={overview?.completed ?? "0"} 
-          icon={CheckCircleIcon}
-          colorClass="metric-card--completed"
-        />
-
-        {/* Priority & Time Metrics */}
-        <MetricCard 
-          title="Critical Priority" 
-          value={priority?.critical ?? "0"} 
-          icon={AlertCircleIcon}
-          colorClass="metric-card--danger"
         />
         <MetricCard 
           title="Avg. Resolution" 
@@ -95,44 +69,97 @@ const Analytics = ({ analytics, loading, onRefresh }) => {
           colorClass="metric-card--info"
         />
         <MetricCard 
-          title="Active Technicians" 
+          title="Active Techs" 
           value={technicians?.total ?? "0"} 
           icon={UserIcon}
           colorClass="metric-card--secondary"
         />
-        <MetricCard 
-          title="Rejected" 
-          value={overview?.rejected ?? "0"} 
-          icon={XCircleIcon}
-          colorClass="metric-card--rejected"
-        />
       </div>
 
-      <div className="analytics-details-grid">
+      <div className="analytics-layout-grid">
+        {/* Status Distribution Card */}
         <div className="card glass-card">
-          <h4>Daily Performance</h4>
-          <div className="analytics-stats">
-            <div className="stat-item">
-              <span className="stat-item__label">Created Today</span>
-              <span className="stat-item__value">{time?.todayCreated ?? "0"}</span>
+          <div className="card__header">
+            <h4>Live Status</h4>
+          </div>
+          <div className="status-stats-grid">
+            <div className="stat-pill status--new">
+              <span className="pill-label">New</span>
+              <span className="pill-value">{overview?.open ?? "0"}</span>
             </div>
-            <div className="stat-item">
-              <span className="stat-item__label">Closed Today</span>
-              <span className="stat-item__value">{time?.todayClosed ?? "0"}</span>
+            <div className="stat-pill status--assigned">
+              <span className="pill-label">Assigned</span>
+              <span className="pill-value">{overview?.assigned ?? "0"}</span>
+            </div>
+            <div className="stat-pill status--in-progress">
+              <span className="pill-label">In Progress</span>
+              <span className="pill-value">{overview?.inProgress ?? "0"}</span>
+            </div>
+            <div className="stat-pill status--completed">
+              <span className="pill-label">Completed</span>
+              <span className="pill-value">{overview?.completed ?? "0"}</span>
             </div>
           </div>
         </div>
 
+        {/* Priority Breakdown Card */}
         <div className="card glass-card">
-          <h4>Status Distribution</h4>
-          <div className="analytics-stats">
-            <div className="stat-item">
-              <span className="stat-item__label">Assigned</span>
-              <span className="stat-item__value">{overview?.assigned ?? "0"}</span>
+          <div className="card__header">
+            <h4>Priority Breakdown</h4>
+          </div>
+          <div className="priority-list">
+            <div className="priority-item">
+              <span className="priority-tag priority--critical">Critical</span>
+              <div className="priority-bar-bg">
+                <div 
+                  className="priority-bar-fill priority--critical" 
+                  style={{ width: `${(priority?.critical / overview?.totalComplaints * 100) || 0}%` }}
+                />
+              </div>
+              <span className="priority-count">{priority?.critical ?? "0"}</span>
             </div>
-            <div className="stat-item">
-              <span className="stat-item__label">Closed Total</span>
-              <span className="stat-item__value">{overview?.closed ?? "0"}</span>
+            <div className="priority-item">
+              <span className="priority-tag priority--high">High</span>
+              <div className="priority-bar-bg">
+                <div 
+                  className="priority-bar-fill priority--high" 
+                  style={{ width: `${(priority?.high / overview?.totalComplaints * 100) || 0}%` }}
+                />
+              </div>
+              <span className="priority-count">{priority?.high ?? "0"}</span>
+            </div>
+            <div className="priority-item">
+              <span className="priority-tag priority--medium">Medium</span>
+              <div className="priority-bar-bg">
+                <div 
+                  className="priority-bar-fill priority--medium" 
+                  style={{ width: `${(priority?.medium / overview?.totalComplaints * 100) || 0}%` }}
+                />
+              </div>
+              <span className="priority-count">{priority?.medium ?? "0"}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Performance Trends Card */}
+        <div className="card glass-card">
+          <div className="card__header">
+            <h4>Today's Velocity</h4>
+          </div>
+          <div className="velocity-metrics">
+            <div className="velocity-chip">
+              <PlusIcon className="velocity-icon text-success" />
+              <div className="velocity-info">
+                <span className="velocity-value">{time?.todayCreated ?? "0"}</span>
+                <span className="velocity-label">New Today</span>
+              </div>
+            </div>
+            <div className="velocity-chip">
+              <CheckCircleIcon className="velocity-icon text-info" />
+              <div className="velocity-info">
+                <span className="velocity-value">{time?.todayClosed ?? "0"}</span>
+                <span className="velocity-label">Closed Today</span>
+              </div>
             </div>
           </div>
         </div>

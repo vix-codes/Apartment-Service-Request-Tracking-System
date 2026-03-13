@@ -860,28 +860,25 @@ textarea {
   }
 }
 /* Analytics Dashboard Styles */
-.analytics-dashboard {
+.analytics-container {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
 }
 
-.analytics-dashboard__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 .analytics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--spacing-lg);
 }
 
 .metric-card {
-  padding: var(--spacing-lg);
+  padding: var(--spacing-xl);
+  border-radius: 20px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
   position: relative;
-  overflow: hidden;
 }
 
 .metric-card__content {
@@ -897,15 +894,21 @@ textarea {
 }
 
 .metric-card__title {
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--secondary-text);
 }
 
 .metric-card__value {
-  font-size: 1.8rem;
-  font-weight: 700;
+  font-size: 2rem;
+  font-weight: 800;
   font-family: var(--font-family-display);
+  background: linear-gradient(135deg, var(--primary-text) 0%, var(--secondary-text) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .metric-card__icon-wrapper {
@@ -913,45 +916,130 @@ textarea {
   border-radius: 12px;
   background: var(--primary-accent-light);
   color: var(--primary-accent);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.metric-card--open .metric-card__icon-wrapper { background: var(--status-open-bg); color: var(--status-open-text); }
-.metric-card--progress .metric-card__icon-wrapper { background: var(--status-progress-bg); color: var(--status-progress-text); }
-.metric-card--completed .metric-card__icon-wrapper { background: var(--status-completed-bg); color: var(--status-completed-text); }
-.metric-card--danger .metric-card__icon-wrapper { background: var(--status-rejected-bg); color: var(--status-rejected-text); }
-.metric-card--info .metric-card__icon-wrapper { background: rgba(14, 165, 233, 0.1); color: #0ea5e9; }
-
-.analytics-details-grid {
+.analytics-layout-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: var(--spacing-lg);
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: var(--spacing-xl);
 }
 
-.analytics-stats {
+/* Live Status Pills */
+.status-stats-grid {
   display: grid;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-md);
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
-.stat-item {
+.stat-pill {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--spacing-sm);
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 8px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.stat-item__label {
-  color: var(--secondary-text);
-  font-size: 0.9rem;
-}
-
-.stat-item__value {
+.pill-label {
+  font-size: 0.75rem;
   font-weight: 600;
+  opacity: 0.8;
 }
 
-/* Status Pipeline Styles */
+.pill-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+/* Priority Bars */
+.priority-list {
+  display: grid;
+  gap: 16px;
+}
+
+.priority-item {
+  display: grid;
+  grid-template-columns: 80px 1fr 30px;
+  align-items: center;
+  gap: 16px;
+}
+
+.priority-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.priority-bar-bg {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.priority-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.priority-count {
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+/* Velocity Chips */
+.velocity-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.velocity-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.velocity-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.velocity-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.velocity-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.velocity-label {
+  font-size: 0.75rem;
+  color: var(--secondary-text);
+}
+
+.text-success { color: #22c55e; }
+.text-info { color: #0ea5e9; }
+
+/* Notification & Notice layering */
+.notice {
+  z-index: 2000; /* Higher than topbar */
+}
+
+.notification__panel {
+  z-index: 10000; /* Extremely high to stay on top of everything */
+}
+
+/* Existing Pipeline Styles preserved/integrated */
 .pipeline {
   display: flex;
   align-items: center;
@@ -960,6 +1048,7 @@ textarea {
   margin: var(--spacing-md) 0;
   position: relative;
 }
+/* ... rest of existing styles ... */
 
 .pipeline__step {
   display: flex;

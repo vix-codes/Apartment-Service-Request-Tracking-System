@@ -6,7 +6,7 @@ const TenantComplaintCard = ({ complaint, setNotice, onUpdated }) => {
 
   const handleReopen = async () => {
     try {
-      await API.put(`/complaints/status/${complaint._id}`, { status: "OPEN" }); // Should go back to OPEN, not NEW for existing tokens
+      await API.put(`/complaints/status/${complaint._id}`, { status: "NEW" }); // Should go back to NEW, not OPEN
       setNotice?.({ tone: "success", message: "Complaint reopened." });
       onUpdated?.();
     } catch (error) {

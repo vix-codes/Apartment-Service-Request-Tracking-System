@@ -1,5 +1,6 @@
 const Complaint = require("../models/Complaint");
 const User = require("../models/User");
+const Counter = require("../models/Counter");
 const logAction = require("../utils/actionLogger");
 const { createNotification, notifyRoles } = require("../utils/notifier");
 
@@ -52,17 +53,35 @@ const normalizeImage = (image) => {
 const generateToken = async () => {
   const year = new Date().getFullYear();
   const prefix = `APT-${year}-`;
-  const latest = await Complaint.findOne({ token: new RegExp(`^${prefix}`) })
-    .sort({ token: -1 })
-    .select("token")
-    .lean();
-  let next = 1;
-  if (latest?.token) {
-    const raw = latest.token.slice(prefix.length);
-    const num = parseInt(raw, 10);
-    if (!Number.isNaN(num)) next = num + 1;
+  const counterId = `complaint_token_${year}`;
+
+  let counter = await Counter.findByIdAndUpdate(
+    counterId,
+    { $inc: { seq: 1 } },
+    { new: true, upsert: false } // Don't upsert yet, need to check fallback
+  );
+
+  if (!counter) {
+    // Fallback: seed from existing complaints
+    const latest = await Complaint.findOne({ token: new RegExp(`^${prefix}`) })
+      .sort({ token: -1 })
+      .select("token")
+      .lean();
+    let next = 1;
+    if (latest && latest.token) {
+      const raw = latest.token.slice(prefix.length);
+      const num = parseInt(raw, 10);
+      if (!Number.isNaN(num)) next = num + 1;
+    }
+    // Now upsert
+    counter = await Counter.findByIdAndUpdate(
+      counterId,
+      { $inc: { seq: 1 }, $setOnInsert: { seq: next - 1 } },
+      { new: true, upsert: true } // Upsert is true, so first request will insert and increment to `next`
+    );
   }
-  return `${prefix}${String(next).padStart(4, "0")}`;
+
+  return `${prefix}${String(counter.seq).padStart(4, "0")}`;
 };
 
 // ==============================

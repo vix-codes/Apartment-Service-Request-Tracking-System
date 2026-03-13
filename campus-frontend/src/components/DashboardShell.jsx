@@ -77,12 +77,13 @@ const DashboardShell = ({
                 <span className="demo-label">Demo Role:</span>
                 <select
                   className="input input--small"
-                  value={localStorage.getItem("role") || "admin"}
+                  value={localStorage.getItem("demo_role") || "admin"}
                   onChange={(e) => {
                     const nextRole = e.target.value;
                     localStorage.setItem("demo_role", nextRole);
                     localStorage.setItem("role", nextRole);
-                    localStorage.setItem("userName", `Demo ${nextRole.charAt(0).toUpperCase() + nextRole.slice(1)}`);
+                    // Clear existing token to force a "fresh" demo login state if needed 
+                    // though for demo mode useAuth typically handles this.
                     window.location.reload();
                   }}
                 >

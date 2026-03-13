@@ -22,33 +22,67 @@
 
   /* Color (Light Mode - Vibrant Cool) */
   --primary-bg: #f8fafc;
-  --secondary-bg: rgba(255, 255, 255, 0.75);
+  --secondary-bg: rgba(255, 255, 255, 0.8);
   --primary-text: #0f172a;
   --secondary-text: #64748b;
   --border-color: rgba(15, 23, 42, 0.08);
 
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+
   /* Primary Accent Colors (Vibrant Indigo) */
   --primary-accent: #6366f1;
-  --primary-accent-light: rgba(99, 102, 241, 0.1);
-  --primary-accent-border: rgba(99, 102, 241, 0.25);
+  --primary-accent-light: rgba(99, 102, 241, 0.08);
+  --primary-accent-border: rgba(99, 102, 241, 0.2);
   --primary-accent-hover: #4f46e5;
   --on-accent: #ffffff;
+
+  /* Status Colors (Curated HSL) */
+  --status-open-bg: hsla(215, 100%, 50%, 0.3);
+  --status-open-text: hsl(215, 100%, 35%);
+  --status-assigned-bg: hsla(260, 100%, 65%, 0.3);
+  --status-assigned-text: hsl(260, 100%, 50%);
+  --status-progress-bg: hsla(35, 100%, 50%, 0.3);
+  --status-progress-text: hsl(35, 100%, 30%);
+  --status-completed-bg: hsla(142, 69%, 58%, 0.3);
+  --status-completed-text: hsl(142, 70%, 20%);
+  --status-rejected-bg: hsla(0, 84%, 60%, 0.3);
+  --status-rejected-text: hsl(0, 84%, 40%);
 }
 
 /* Dark mode enabled by adding `.dark` on `body` (existing code). */
 body.dark {
-  --primary-bg: #09090b;
-  --secondary-bg: rgba(24, 24, 27, 0.65);
-  --primary-text: #f8fafc;
-  --secondary-text: #a1a1aa;
-  --border-color: rgba(255, 255, 255, 0.1);
+  --primary-bg: #020617;
+  --secondary-bg: rgba(15, 23, 42, 0.6);
+  --primary-text: #f1f5f9;
+  --secondary-text: #94a3b8;
+  --border-color: rgba(255, 255, 255, 0.06);
+
+  /* Glassmorphism Dark */
+  --glass-bg: rgba(15, 23, 42, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 
   /* Accent Colors Dark mode (Vibrant Violet/Indigo) */
   --primary-accent: #818cf8;
-  --primary-accent-light: rgba(129, 140, 248, 0.15);
-  --primary-accent-border: rgba(129, 140, 248, 0.3);
+  --primary-accent-light: rgba(129, 140, 248, 0.12);
+  --primary-accent-border: rgba(129, 140, 248, 0.25);
   --primary-accent-hover: #6366f1;
   --on-accent: #0f172a;
+
+  /* Status Colors Dark */
+  --status-open-bg: hsla(215, 100%, 50%, 0.3);
+  --status-open-text: hsl(215, 100%, 80%);
+  --status-assigned-bg: hsla(260, 100%, 70%, 0.3);
+  --status-assigned-text: hsl(260, 100%, 85%);
+  --status-progress-bg: hsla(35, 100%, 50%, 0.3);
+  --status-progress-text: hsl(35, 100%, 75%);
+  --status-completed-bg: hsla(142, 69%, 58%, 0.3);
+  --status-completed-text: hsl(142, 70%, 70%);
+  --status-rejected-bg: hsla(0, 84%, 60%, 0.3);
+  --status-rejected-text: hsl(0, 84%, 80%);
 }
 
 h1, h2, h3, h4, h5, h6 {

@@ -27,19 +27,19 @@ body {
   min-width: 320px;
   min-height: 100vh;
   /* Dynamic, modern gradients - Indigo/Violet/Fuchsia mix */
-  background: radial-gradient(1000px 800px at 10% 0%, rgba(99, 102, 241, 0.15), transparent 60%),
-    radial-gradient(1200px 900px at 90% 20%, rgba(168, 85, 247, 0.12), transparent 50%),
-    radial-gradient(800px 600px at 40% 90%, rgba(236, 72, 153, 0.1), transparent 55%),
+  background: radial-gradient(1000px 800px at 10% 0%, rgba(99, 102, 241, 0.12), transparent 60%),
+    radial-gradient(1200px 900px at 90% 20%, rgba(168, 85, 247, 0.1), transparent 50%),
+    radial-gradient(800px 600px at 40% 90%, rgba(236, 72, 153, 0.08), transparent 55%),
     var(--primary-bg);
   background-attachment: fixed;
   color: var(--primary-text);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 body.dark {
-  background: radial-gradient(1000px 800px at 10% 0%, rgba(99, 102, 241, 0.08), transparent 60%),
-    radial-gradient(1200px 900px at 90% 20%, rgba(168, 85, 247, 0.06), transparent 50%),
-    radial-gradient(800px 600px at 40% 90%, rgba(236, 72, 153, 0.05), transparent 55%),
+  background: radial-gradient(1000px 800px at 10% 0%, rgba(99, 102, 241, 0.06), transparent 60%),
+    radial-gradient(1200px 900px at 90% 20%, rgba(168, 85, 247, 0.05), transparent 50%),
+    radial-gradient(800px 600px at 40% 90%, rgba(236, 72, 153, 0.04), transparent 55%),
     var(--primary-bg);
   background-attachment: fixed;
 }

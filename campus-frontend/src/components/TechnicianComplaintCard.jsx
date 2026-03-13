@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import API from "../services/api";
+import StatusPipeline from "./StatusPipeline";
 
 const TechnicianComplaintCard = ({ complaint, setNotice, onUpdated }) => {
   const [busy, setBusy] = useState(false);
@@ -40,11 +41,11 @@ const TechnicianComplaintCard = ({ complaint, setNotice, onUpdated }) => {
   };
 
   return (
-    <div className="card">
+    <div className="card glass-card">
       <div className="card__header">
-        <div>
-          <h4>{complaint.title}</h4>
-          <p className="muted">{complaint.description}</p>
+        <div className="card__title-group">
+          <h4 className="card__title">{complaint.title}</h4>
+          <p className="secondary-text card__description">{complaint.description}</p>
         </div>
         <span
           className={`status status--${complaint.status
@@ -54,6 +55,8 @@ const TechnicianComplaintCard = ({ complaint, setNotice, onUpdated }) => {
           {complaint.status?.replaceAll("_", " ")}
         </span>
       </div>
+
+      <StatusPipeline currentStatus={complaint.status} />
 
       <div className="card__meta">
         {complaint.token && <p>Token: {complaint.token}</p>}

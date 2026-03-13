@@ -57,7 +57,7 @@ const DashboardShell = ({
       </aside>
 
       <main className="dashboard-main">
-        <header className="dashboard-topbar card">
+        <header className="dashboard-topbar glass-card">
           <div className="dashboard-topbar__greeting">{greeting}</div>
 
           {onSearchChange ? (
@@ -72,6 +72,26 @@ const DashboardShell = ({
           )}
 
           <div className="dashboard-topbar__actions">
+            {import.meta.env.VITE_DEMO_MODE === "true" && (
+              <div className="demo-switcher">
+                <span className="demo-label">Demo Role:</span>
+                <select
+                  className="input input--small"
+                  value={localStorage.getItem("role") || "admin"}
+                  onChange={(e) => {
+                    const nextRole = e.target.value;
+                    localStorage.setItem("demo_role", nextRole);
+                    localStorage.setItem("role", nextRole);
+                    localStorage.setItem("userName", `Demo ${nextRole.charAt(0).toUpperCase() + nextRole.slice(1)}`);
+                    window.location.reload();
+                  }}
+                >
+                  <option value="admin">Admin</option>
+                  <option value="technician">Technician</option>
+                  <option value="tenant">Tenant</option>
+                </select>
+              </div>
+            )}
             <button type="button" className="button button--ghost button--small" onClick={logout}>
               <LogoutIcon />
               <span>Logout</span>

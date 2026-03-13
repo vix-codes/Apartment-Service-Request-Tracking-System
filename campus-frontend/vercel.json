@@ -1,12 +1,9 @@
 {
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/[...path]"
+      "source": "/(api|auth|complaints|notifications|admin)/:path*",
+      "destination": "https://apartment-service-request-tracking-system-production.up.railway.app/api/:path*"
     },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

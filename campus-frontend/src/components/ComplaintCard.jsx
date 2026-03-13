@@ -1,3 +1,5 @@
+import StatusPipeline from "./StatusPipeline";
+
 const ComplaintCard = ({
     complaint,
     technicians,
@@ -7,15 +9,15 @@ const ComplaintCard = ({
     onReopen,
     onDelete,
   }) => {
-    const canClose = complaint.status === "COMPLETED";
-    const canReopen = complaint.status === "REJECTED" || complaint.status === "CLOSED";
+    const canClose = ["COMPLETED", "IN_PROGRESS", "ASSIGNED"].includes(complaint.status);
+    const canReopen = ["REJECTED", "CLOSED", "COMPLETED"].includes(complaint.status);
 
     return (
-      <div className="card">
+      <div className="card glass-card">
         <div className="card__header">
-          <div>
-            <h4>{complaint.title}</h4>
-            <p className="muted">{complaint.description}</p>
+          <div className="card__title-group">
+            <h4 className="card__title">{complaint.title}</h4>
+            <p className="secondary-text card__description">{complaint.description}</p>
           </div>
           <span
             className={`status status--${complaint.status
@@ -25,6 +27,8 @@ const ComplaintCard = ({
             {complaint.status?.replaceAll("_", " ")}
           </span>
         </div>
+
+        <StatusPipeline currentStatus={complaint.status} />
   
         {complaint.image && (
           <img
@@ -35,8 +39,8 @@ const ComplaintCard = ({
         )}
   
         <div className="card__meta">
-          {complaint.token && <p>Token: {complaint.token}</p>}
-          {complaint.priority && <p>Priority: {complaint.priority}</p>}
+          {complaint.token && <p>Token: <strong>{complaint.token}</strong></p>}
+          <p>Priority: <strong style={{ textTransform: 'capitalize' }}>{complaint.priority || "Medium"}</strong></p>
           {complaint.createdAt && (
             <p>Created: {new Date(complaint.createdAt).toLocaleString()}</p>
           )}
@@ -78,9 +82,9 @@ const ComplaintCard = ({
               className="button button--primary"
               onClick={() => onClose(complaint._id)}
               disabled={!canClose}
-              title={canClose ? "Close complaint" : "Only completed complaints can be closed"}
+              title={complaint.status === "COMPLETED" ? "Close complaint" : "Force close in-progress complaint"}
             >
-              Close
+              {complaint.status === "COMPLETED" ? "Close" : "Force Close"}
             </button>
           )}
 
